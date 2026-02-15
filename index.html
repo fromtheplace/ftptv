@@ -190,32 +190,6 @@ body{transform: scale(0.9);
 }
 @keyframes ti-blink { 0%,100%{opacity:1} 50%{opacity:0.25} }
 
-/* COUNTDOWN RING */
-.ti-countdown {
-  margin-top: 2rem;
-  position: relative; width: 44px; height: 44px;
-}
-.ti-countdown svg {
-  position: absolute; inset: 0;
-  transform: rotate(-90deg);
-}
-.ti-countdown-track {
-  fill: none; stroke: rgba(255,255,255,0.08); stroke-width: 2;
-}
-.ti-countdown-ring {
-  fill: none; stroke: var(--white); stroke-width: 2;
-  stroke-linecap: round;
-  stroke-dasharray: 113; /* 2π × r(18) ≈ 113 */
-  stroke-dashoffset: 0;
-  transition: stroke-dashoffset 1s linear;
-}
-.ti-countdown-num {
-  position: absolute; inset: 0;
-  display: flex; align-items: center; justify-content: center;
-  font-family: 'Space Mono', monospace; font-size: 13px;
-  color: rgba(255,255,255,0.5); letter-spacing: 0;
-}
-
 /* CHANNEL BUMP */
 #bump {
   position: fixed; inset: 0; z-index: 20;
@@ -335,13 +309,6 @@ font-family: 'Unbounded', sans-serif; font-weight: 900; font-size: 13px; letter-
   <div class="logotitle">from the<br><strong>place</strong></div>
   <div class="ti-sub">Ōtepoti Music Television</div>
   <div class="ti-cta">Click to tune in</div>
-  <div class="ti-countdown">
-    <svg viewBox="0 0 44 44">
-      <circle class="ti-countdown-track" cx="22" cy="22" r="18"/>
-      <circle class="ti-countdown-ring" id="ti-ring" cx="22" cy="22" r="18"/>
-    </svg>
-    <div class="ti-countdown-num" id="ti-num">5</div>
-  </div>
 </div>
 
 <div id="bump">
@@ -470,45 +437,17 @@ function extractEvent(title) {
 function tuneIn() {
   if (hasTunedIn) return;
   hasTunedIn = true;
-  clearInterval(_countdownTimer);
   document.getElementById('tune-in').classList.add('hide');
-
   if (playerReady && player) {
     player.unMute();
     player.setVolume(80);
-    player.playVideo();
     _muted = false;
     document.getElementById('mute-btn').textContent = '🔊';
     document.getElementById('vol-icon').textContent = '🔊';
     document.getElementById('vol-slider').value     = 80;
   }
-  // If player isn't ready yet, onPlayerReady checks hasTunedIn and unmutes then
+  // if player isn't ready yet, onPlayerReady will unmute when it fires
 }
-
-// ── Auto tune-in countdown (5 → 0 then fires) ────────────────────────────────
-// Starts immediately on page load — independent of player readiness.
-// tuneIn() handles the case where player isn't ready yet.
-let _countdownTimer = null;
-(function startCountdown() {
-  const TOTAL   = 5;
-  const circumf = 113; // 2π × 18
-  let remaining = TOTAL;
-
-  const ring = document.getElementById('ti-ring');
-  const num  = document.getElementById('ti-num');
-
-  requestAnimationFrame(() => { ring.style.strokeDashoffset = 0; });
-
-  _countdownTimer = setInterval(() => {
-    remaining--;
-    num.textContent = remaining > 0 ? remaining : '';
-    ring.style.strokeDashoffset = ((TOTAL - remaining) / TOTAL) * circumf;
-    if (remaining <= 0) {
-      clearInterval(_countdownTimer);
-      tuneIn();
-    }
-  }, 1000);
-})();
 
 // ── Boot YouTube IFrame API ──
 (function loadYTAPI() {
@@ -548,11 +487,10 @@ function onPlayerReady() {
   liveSeekOffset = seekOffset;
   loadTrack(videoIndex);
 
-  // If countdown already fired before player was ready, unmute now
+  // Only unmute if user has already clicked tune-in
   if (hasTunedIn) {
     player.unMute();
     player.setVolume(80);
-    player.playVideo();
     _muted = false;
     document.getElementById('mute-btn').textContent = '🔊';
     document.getElementById('vol-icon').textContent = '🔊';
