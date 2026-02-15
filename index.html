@@ -250,10 +250,6 @@ font-family: 'Unbounded', sans-serif; font-weight: 900; font-size: 13px; letter-
   font-size: 11px; letter-spacing: 0.25em; color: var(--white); text-transform: uppercase;
 }
 
-/* BROADCAST POSITION STRIP — how far through today's rotation */
-#broadcast-strip { position: fixed; top: 52px; left: 0; right: 0; height: 2px; z-index: 9; background: rgba(255,255,255,0.04); pointer-events: none; }
-#broadcast-fill { height: 100%; background: rgba(246,92,149,0.4); transition: width 1s linear; }
-
 /* LOWER THIRD — smallest print */
 #lower-third {
   position: fixed; bottom: 70px; left: 0; z-index: 10; padding: 0 22px; pointer-events: none;
@@ -317,7 +313,7 @@ font-family: 'Unbounded', sans-serif; font-weight: 900; font-size: 13px; letter-
 </div>
 
 <div id="channel-id">Ōtepoti Music</div>
-<div id="broadcast-strip"><div id="broadcast-fill"></div></div>
+
 
 <div id="lower-third">
   <div class="lt-now"><div class="lt-now-dot"></div><div class="lt-now-label">Now Playing</div></div>
