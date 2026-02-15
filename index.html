@@ -472,45 +472,40 @@ function tuneIn() {
   hasTunedIn = true;
   clearInterval(_countdownTimer);
   document.getElementById('tune-in').classList.add('hide');
-  if (playerReady && player) {
+  if (player) {
     player.unMute();
     player.setVolume(80);
+    player.playVideo();   // force play in case browser suspended it
     _muted = false;
     document.getElementById('mute-btn').textContent = '🔊';
     document.getElementById('vol-icon').textContent = '🔊';
     document.getElementById('vol-slider').value     = 80;
   }
-  // if player isn't ready yet, onPlayerReady will unmute when it fires
 }
 
 // ── Auto tune-in countdown (5 → 0 then fires) ────────────────────────────────
+// Started from onPlayerReady so the player is guaranteed ready when it fires.
 let _countdownTimer = null;
-(function startCountdown() {
-  const TOTAL    = 5;
-  const circumf  = 113; // 2π × 18
-  let   remaining = TOTAL;
+function startCountdown() {
+  const TOTAL   = 5;
+  const circumf = 113; // 2π × 18
+  let remaining = TOTAL;
 
   const ring = document.getElementById('ti-ring');
   const num  = document.getElementById('ti-num');
 
-  // Defer one frame so the transition fires correctly on first tick
-  requestAnimationFrame(() => {
-    ring.style.strokeDashoffset = 0;
-  });
+  requestAnimationFrame(() => { ring.style.strokeDashoffset = 0; });
 
   _countdownTimer = setInterval(() => {
     remaining--;
-    // Update number
     num.textContent = remaining > 0 ? remaining : '';
-    // Drain the ring: offset goes from 0 → circumf over TOTAL seconds
     ring.style.strokeDashoffset = ((TOTAL - remaining) / TOTAL) * circumf;
-
     if (remaining <= 0) {
       clearInterval(_countdownTimer);
       tuneIn();
     }
   }, 1000);
-})();
+}
 
 // ── Boot YouTube IFrame API ──
 (function loadYTAPI() {
@@ -550,7 +545,7 @@ function onPlayerReady() {
   liveSeekOffset = seekOffset;
   loadTrack(videoIndex);
 
-  // Only unmute if user has already clicked tune-in
+  // Only unmute if user already clicked tune-in before player was ready
   if (hasTunedIn) {
     player.unMute();
     player.setVolume(80);
@@ -558,6 +553,9 @@ function onPlayerReady() {
     document.getElementById('mute-btn').textContent = '🔊';
     document.getElementById('vol-icon').textContent = '🔊';
     document.getElementById('vol-slider').value     = 80;
+  } else {
+    // Player is ready — start the countdown now so it fires when player exists
+    startCountdown();
   }
 }
 
