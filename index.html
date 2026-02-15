@@ -28,7 +28,7 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: #000; colo
 }
 #yt-player { width: 100%; height: 100%; }
 
-/* CRT SCANLINES — always on */
+/* CRT SCANLINES */
 #scanlines {
   position: fixed; inset: 0; z-index: 2; pointer-events: none;
   background: repeating-linear-gradient(
@@ -47,12 +47,55 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: #000; colo
   background: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.55) 100%);
 }
 
+/* STATIC OVERLAY — flashes on track change */
+#static {
+  position: fixed; inset: 0; z-index: 19; pointer-events: none; opacity: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.4'/%3E%3C/svg%3E");
+  background-size: 200px;
+  mix-blend-mode: screen;
+  transition: opacity 0.05s;
+}
+#static.flash { opacity: 0.18; }
+
+/* TUNE-IN GATE */
+#tune-in {
+  position: fixed; inset: 0; z-index: 50;
+  background: #000;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px;
+  cursor: pointer;
+  transition: opacity 0.5s ease;
+}
+#tune-in.hide { opacity: 0; pointer-events: none; }
+.ti-logo {
+  font-family: 'Unbounded', sans-serif; font-weight: 900;
+  font-size: clamp(52px,10vw,100px); letter-spacing: 0.1em; color: var(--white);
+  animation: ti-breathe 3s ease-in-out infinite;
+}
+.ti-logo em { font-style: normal; color: var(--channel-green); }
+@keyframes ti-breathe { 0%,100%{opacity:0.85} 50%{opacity:1} }
+.ti-tag {
+  font-family: 'Space Mono', monospace; font-size: clamp(7px,1.1vw,10px);
+  letter-spacing: 0.45em; color: rgba(255,255,255,0.22); text-transform: uppercase;
+}
+.ti-clock {
+  font-family: 'Space Mono', monospace; font-size: clamp(13px,1.8vw,18px);
+  color: rgba(255,255,255,0.2); letter-spacing: 0.12em; margin-top: 8px;
+}
+.ti-cta {
+  margin-top: 12px;
+  font-family: 'Space Mono', monospace; font-size: clamp(8px,1vw,10px);
+  letter-spacing: 0.35em; color: rgba(255,255,255,0.4); text-transform: uppercase;
+  border: 1px solid rgba(255,255,255,0.12); padding: 10px 22px; border-radius: 3px;
+  animation: ti-blink 2s step-end infinite;
+}
+@keyframes ti-blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
 /* CHANNEL BUMP */
 #bump {
   position: fixed; inset: 0; z-index: 20;
   background: #000;
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
-  opacity: 0; pointer-events: none; transition: opacity 0.1s;
+  opacity: 0; pointer-events: none; transition: opacity 0.12s;
 }
 #bump.show { opacity: 1; }
 .bump-logo { font-family: 'Unbounded', sans-serif; font-weight: 900; font-size: clamp(40px,8vw,80px); letter-spacing: 0.12em; color: var(--white); }
@@ -67,12 +110,17 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: #000; colo
 }
 .nav-logo { font-family: 'Unbounded', sans-serif; font-weight: 900; font-size: 13px; letter-spacing: 0.22em; color: var(--white); user-select: none; }
 .nav-logo em { font-style: normal; color: var(--channel-green); }
-.nav-right { display: flex; align-items: center; gap: 12px; }
+.nav-right { display: flex; align-items: center; gap: 14px; }
 
 .live-pill { display: flex; align-items: center; gap: 6px; padding: 4px 10px; border: 1px solid rgba(255,43,43,0.35); border-radius: 100px; background: rgba(255,43,43,0.1); }
 .live-dot { width: 6px; height: 6px; background: var(--channel-red); border-radius: 50%; animation: pulse 1.4s ease-in-out infinite; }
 @keyframes pulse { 0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(255,43,43,0.5)} 50%{opacity:0.6;box-shadow:0 0 0 5px rgba(255,43,43,0)} }
 .live-text { font-family: 'Space Mono', monospace; font-size: 8px; letter-spacing: 0.2em; color: var(--channel-red); text-transform: uppercase; }
+
+#broadcast-clock {
+  font-family: 'Space Mono', monospace; font-size: 10px;
+  letter-spacing: 0.1em; color: rgba(255,255,255,0.28);
+}
 
 .nav-btn {
   width: 34px; height: 34px; display: flex; align-items: center; justify-content: center;
@@ -89,9 +137,9 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: #000; colo
   font-size: 11px; letter-spacing: 0.25em; color: var(--white); text-transform: uppercase;
 }
 
-/* PLAYLIST PROGRESS STRIP */
-#playlist-strip { position: fixed; top: 52px; left: 0; right: 0; height: 2px; z-index: 9; background: rgba(255,255,255,0.04); pointer-events: none; }
-#playlist-fill { height: 100%; background: rgba(246,92,149,0.4); transition: width 0.5s ease; }
+/* BROADCAST POSITION STRIP — how far through today's rotation */
+#broadcast-strip { position: fixed; top: 52px; left: 0; right: 0; height: 2px; z-index: 9; background: rgba(255,255,255,0.04); pointer-events: none; }
+#broadcast-fill { height: 100%; background: rgba(246,92,149,0.4); transition: width 1s linear; }
 
 /* LOWER THIRD */
 #lower-third {
@@ -105,39 +153,26 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: #000; colo
 .lt-context { font-family: 'DM Sans', sans-serif; font-size: clamp(11px,1.4vw,15px); font-weight: 300; color: rgba(255,255,255,0.55); margin-top: 2px; letter-spacing: 0.02em; }
 .lt-event-badge { display: inline-block; margin-top: 7px; padding: 3px 9px; background: var(--channel-pink); color: #000; font-family: 'Unbounded', sans-serif; font-weight: 700; font-size: 8px; letter-spacing: 0.18em; text-transform: uppercase; border-radius: 3px; transform: rotate(-1.5deg); }
 
-/* TRACK COUNTER */
-#track-counter { position: fixed; bottom: 70px; right: 22px; z-index: 10; text-align: right; pointer-events: none; }
-.tc-num { font-family: 'Space Mono', monospace; font-size: 11px; color: rgba(255,255,255,0.3); letter-spacing: 0.08em; }
-.tc-num strong { color: rgba(255,255,255,0.7); font-size: 15px; }
-.tc-runtime { font-family: 'Space Mono', monospace; font-size: 9px; color: rgba(255,255,255,0.18); margin-top: 3px; }
+/* BROADCAST INFO — replaces track counter */
+#broadcast-info { position: fixed; bottom: 70px; right: 22px; z-index: 10; text-align: right; pointer-events: none; }
+.bi-label { font-family: 'Space Mono', monospace; font-size: 8px; color: rgba(255,255,255,0.2); letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 3px; }
+.bi-time { font-family: 'Space Mono', monospace; font-size: 14px; color: rgba(255,255,255,0.5); letter-spacing: 0.06em; }
 
-/* CLIP BAR */
+/* CLIP BAR — read-only */
 #clip-bar-wrap { position: fixed; bottom: 64px; left: 0; right: 0; z-index: 10; height: 3px; background: rgba(255,255,255,0.07); pointer-events: none; }
 #clip-bar { height: 100%; background: var(--channel-green); width: 0%; box-shadow: 0 0 8px rgba(14,255,199,0.5); transition: width 0.5s linear; }
 
-/* CONTROLS */
+/* CONTROLS — no skip/shuffle, read-only progress */
 #controls {
   position: fixed; bottom: 0; left: 0; right: 0; z-index: 10; height: 64px;
   display: flex; align-items: center; gap: 10px; padding: 0 18px;
   background: rgba(0,0,0,0.88); border-top: 1px solid rgba(255,255,255,0.05);
   backdrop-filter: blur(12px);
 }
-.ctrl-btn {
-  width: 38px; height: 38px; display: flex; align-items: center; justify-content: center;
-  border: none; background: transparent; color: rgba(255,255,255,0.5); font-size: 18px;
-  cursor: pointer; border-radius: 9px; transition: all 0.15s; flex-shrink: 0; user-select: none;
-}
-.ctrl-btn:hover { color: var(--white); background: rgba(255,255,255,0.07); }
-.ctrl-btn.play { width: 44px; height: 44px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.14); color: var(--white); font-size: 20px; border-radius: 12px; }
-.ctrl-btn.play:hover { background: rgba(255,255,255,0.18); }
-.ctrl-btn.shuffle-on { color: var(--channel-green); }
 
 .ctrl-progress { flex: 1; display: flex; flex-direction: column; gap: 3px; min-width: 0; }
-.prog-track { position: relative; height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; cursor: pointer; }
-.prog-track:hover .prog-fill { background: var(--channel-green); }
-.prog-track:hover .prog-thumb { opacity: 1; }
-.prog-fill { height: 100%; background: rgba(14,255,199,0.7); border-radius: 2px; pointer-events: none; transition: width 0.5s linear; }
-.prog-thumb { position: absolute; top: 50%; width: 11px; height: 11px; background: var(--white); border-radius: 50%; transform: translate(-50%,-50%); pointer-events: none; opacity: 0; transition: opacity 0.15s; }
+.prog-track { position: relative; height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; cursor: default; pointer-events: none; }
+.prog-fill { height: 100%; background: rgba(14,255,199,0.7); border-radius: 2px; transition: width 0.5s linear; }
 .prog-times { display: flex; justify-content: space-between; font-family: 'Space Mono', monospace; font-size: 8px; color: rgba(255,255,255,0.25); letter-spacing: 0.05em; }
 
 .vol-wrap { display: flex; align-items: center; gap: 7px; flex-shrink: 0; }
@@ -150,6 +185,15 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: #000; colo
 <div id="player-wrap"><div id="yt-player"></div></div>
 <div id="scanlines"></div>
 <div id="vignette"></div>
+<div id="static"></div>
+
+<!-- TUNE-IN GATE: first click unlocks audio, starts mid-stream broadcast -->
+<div id="tune-in" onclick="tuneIn()">
+  <div class="ti-logo">FT<em>P</em></div>
+  <div class="ti-tag">Ōtepoti Music Television</div>
+  <div class="ti-clock" id="ti-clock"></div>
+  <div class="ti-cta">Click to tune in</div>
+</div>
 
 <div id="bump">
   <div class="bump-logo">FT<em>P</em></div>
@@ -159,14 +203,15 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: #000; colo
 <div id="nav">
   <div class="nav-logo">FTP<em>●</em></div>
   <div class="nav-right">
-    <div class="live-pill"><div class="live-dot"></div><div class="live-text">Live</div></div>
+    <div class="live-pill"><div class="live-dot"></div><div class="live-text">Broadcasting</div></div>
+    <span id="broadcast-clock"></span>
     <div class="nav-btn" id="mute-btn" onclick="toggleMute()">🔇</div>
     <div class="nav-btn" onclick="toggleFullscreen()">⛶</div>
   </div>
 </div>
 
 <div id="channel-id">Ōtepoti Music</div>
-<div id="playlist-strip"><div id="playlist-fill"></div></div>
+<div id="broadcast-strip"><div id="broadcast-fill"></div></div>
 
 <div id="lower-third">
   <div class="lt-now"><div class="lt-now-dot"></div><div class="lt-now-label">Now Playing</div></div>
@@ -175,24 +220,19 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: #000; colo
   <div class="lt-event-badge" id="lt-badge" style="display:none"></div>
 </div>
 
-<div id="track-counter">
-  <div class="tc-num"><strong id="tc-current">1</strong> / <span id="tc-total">—</span></div>
-  <div class="tc-runtime" id="tc-clip">0:00 / 0:00</div>
+<div id="broadcast-info">
+  <div class="bi-label">Airing since</div>
+  <div class="bi-time" id="bi-time">—</div>
 </div>
 
 <div id="clip-bar-wrap"><div id="clip-bar"></div></div>
 
 <div id="controls">
-  <button class="ctrl-btn" onclick="prevTrack()">⏮</button>
-  <button class="ctrl-btn play" id="play-btn" onclick="togglePlay()">⏸</button>
-  <button class="ctrl-btn" onclick="nextTrack()">⏭</button>
-  <button class="ctrl-btn" id="shuffle-btn" onclick="toggleShuffle()">⇄</button>
   <div class="ctrl-progress">
-    <div class="prog-track" id="prog-track" onclick="scrub(event)">
+    <div class="prog-track">
       <div class="prog-fill" id="prog-fill" style="width:0%"></div>
-      <div class="prog-thumb" id="prog-thumb" style="left:0%"></div>
     </div>
-    <div class="prog-times"><span id="prog-cur">0:00</span><span id="prog-dur">0:00</span></div>
+    <div class="prog-times"><span id="prog-cur">—</span><span id="prog-dur">—</span></div>
   </div>
   <div class="vol-wrap">
     <div class="nav-btn" id="vol-icon" onclick="toggleMute()" style="width:30px;height:30px;font-size:13px">🔇</div>
@@ -200,21 +240,7 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: #000; colo
   </div>
 </div>
 
-<!-- ══════════════════════════════════════════════════════
-     STEP 1: Replace the array below with your FTP_MEGA.js data.
-     
-     Option A — paste inline:
-       Replace the PLAYLIST array contents with your track objects.
-     
-     Option B — import your file:
-       1. Add this line just above this <script> tag:
-            <script src="FTP_MEGA.js"></script>
-       2. Change the line below to:
-            const PLAYLIST = FTP_MEGA;   ← or whatever your variable is named
-     
-     Each entry must be: { id: 'youtubeId', start: 0, end: 287, title: 'Artist - Track' }
-══════════════════════════════════════════════════════ -->
-  <script src="FTP_MEGA.js"></script>
+<script src="FTP_MEGA.js"></script>
 <script>
 // videoPlaylist is declared in FTP_MEGA.js
 const PLAYLIST = videoPlaylist;
@@ -222,72 +248,127 @@ const PLAYLIST = videoPlaylist;
 
 <script>
 // ══════════════════════════════════════════════════════
-//  FTP CHANNEL PLAYER
-//  
-//  WHY NO ADS: We use YT.Player (IFrame API) and call
-//  player.loadVideoById({videoId, startSeconds, endSeconds})
-//  instead of rebuilding iframe src strings. This gives
-//  JS-level control — YouTube cannot inject pre-roll ads
-//  into API-instantiated players the same way it does with
-//  raw embed iframes. The controls:0 + modestbranding:1
-//  playerVars also suppress all YouTube UI chrome.
+//  FTP CHANNEL — LIVE BROADCAST MODE
+//
+//  Every visitor lands mid-stream. Position is derived
+//  from wall-clock time + a daily seed so the "schedule"
+//  shifts each UTC day. Nobody starts at track 1.
+//  No skip, no scrub, no shuffle — you're watching TV.
 // ══════════════════════════════════════════════════════
 
-let player       = null;
-let videoIndex   = 0;
-let isPlaying    = true;
-let _muted       = true;
-let isShuffle    = false;
-let progressTimer = null;
-let clipDuration  = 0;
-let playerReady   = false;
+// ── Total playlist duration (auto-calculated from data) ──
+const TOTAL_SECONDS = PLAYLIST.reduce((s, t) => s + Math.max(0, t.end - t.start), 0);
 
-function parseTitle(title) {
-  const sep = title.includes('—') ? '—' : ' - ';
-  const parts = title.split(sep);
-  const artist  = parts[0].trim();
-  const context = (parts.slice(1).join(sep)).replace(/\[.*?\]/g,'').replace(/#\w+/g,'').trim();
-  return { artist, context };
+// ── Live position: where in the rotation are we right now? ──
+function getLivePosition() {
+  const nowSec = Math.floor(Date.now() / 1000);
+
+  // Daily seed — shifts the "schedule" each UTC day
+  const dayNumber = Math.floor(nowSec / 86400);
+  const dailySeed = (dayNumber * 3571) % TOTAL_SECONDS;
+
+  const posInCycle = (nowSec % TOTAL_SECONDS + dailySeed) % TOTAL_SECONDS;
+
+  let elapsed = 0;
+  for (let i = 0; i < PLAYLIST.length; i++) {
+    const clipLen = PLAYLIST[i].end - PLAYLIST[i].start;
+    if (posInCycle < elapsed + clipLen) {
+      return { index: i, seekOffset: posInCycle - elapsed, posInCycle };
+    }
+    elapsed += clipLen;
+  }
+  return { index: 0, seekOffset: 0, posInCycle: 0 };
 }
 
-function extractEvent(title) {
-  if (/ŌHHH/.test(title))             return 'ŌHHH';
-  if (/[Ll]obofest/.test(title))      return 'LOBOFEST';
-  if (/Music for People/.test(title)) return 'MFP';
-  if (/Space Concert/.test(title))    return 'SPACE CONCERT';
-  if (/Nick Knox/.test(title))        return 'NICK KNOX';
-  if (/NEON/.test(title))             return 'NEON EXPOSURE';
-  if (/Crown/.test(title))            return 'THE CROWN';
-  if (/Anteroom/.test(title))         return 'THE ANTEROOM';
-  if (/indie voices/i.test(title))     return 'INDIE VOICES';
-  if (/Waitati/.test(title))          return 'WAITATI';
-  if (/Nook/.test(title))             return 'NOOK & CRANNY';
-  return null;
-}
+let player         = null;
+let videoIndex     = 0;
+let _muted         = true;
+let isPlaying      = false;
+let progressTimer  = null;
+let clipDuration   = 0;
+let playerReady    = false;
+let liveSeekOffset = 0;
+let hasTunedIn     = false;
 
+// ── Formatters ──
 function fmt(s) {
   s = Math.max(0, Math.floor(s));
   return `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;
 }
+function fmtTime(date) {
+  const h = date.getHours(), m = String(date.getMinutes()).padStart(2,'0'), s = String(date.getSeconds()).padStart(2,'0');
+  return `${h % 12 || 12}:${m}:${s}${h >= 12 ? 'pm' : 'am'}`;
+}
 
-// ── Boot YT IFrame API ──
-function loadYTAPI() {
+function parseTitle(title) {
+  const sep   = title.includes('—') ? '—' : ' - ';
+  const parts = title.split(sep);
+  return {
+    artist:  parts[0].trim(),
+    context: parts.slice(1).join(sep).replace(/\[.*?\]/g,'').replace(/#\w+/g,'').trim()
+  };
+}
+
+function extractEvent(title) {
+  if (/ŌHHH/.test(title))              return 'ŌHHH';
+  if (/[Ll]obofest/.test(title))       return 'LOBOFEST';
+  if (/Music for People/i.test(title)) return 'MFP';
+  if (/Space Concert/i.test(title))    return 'SPACE CONCERT';
+  if (/Nick Knox/i.test(title))        return 'NICK KNOX';
+  if (/NEON/i.test(title))             return 'NEON EXPOSURE';
+  if (/Crown/i.test(title))            return 'THE CROWN';
+  if (/Anteroom/i.test(title))         return 'THE ANTEROOM';
+  if (/indie voices/i.test(title))     return 'INDIE VOICES';
+  if (/Waitati/i.test(title))          return 'WAITATI';
+  if (/Nook/i.test(title))             return 'NOOK & CRANNY';
+  return null;
+}
+
+// ── Live clock — runs on tune-in screen and in nav ──
+function tickClock() {
+  const t = fmtTime(new Date());
+  const a = document.getElementById('ti-clock');
+  const b = document.getElementById('broadcast-clock');
+  if (a) a.textContent = t;
+  if (b) b.textContent = t;
+}
+tickClock();
+setInterval(tickClock, 1000);
+
+// ── Tune-in gate ──
+function tuneIn() {
+  if (hasTunedIn) return;
+  hasTunedIn = true;
+  document.getElementById('tune-in').classList.add('hide');
+  if (playerReady && player) {
+    player.unMute();
+    player.setVolume(80);
+    _muted = false;
+    document.getElementById('mute-btn').textContent = '🔊';
+    document.getElementById('vol-icon').textContent = '🔊';
+    document.getElementById('vol-slider').value     = 80;
+  }
+  // if player isn't ready yet, onPlayerReady will handle unmute
+}
+
+// ── Boot YouTube IFrame API ──
+(function loadYTAPI() {
   const tag = document.createElement('script');
   tag.src = 'https://www.youtube.com/iframe_api';
   document.head.appendChild(tag);
-}
+})();
 
 window.onYouTubeIframeAPIReady = function() {
   player = new YT.Player('yt-player', {
     width: '100%', height: '100%',
     playerVars: {
       autoplay:       1,
-      mute:           1,      // must start muted for browser autoplay policy
-      controls:       0,      // hide all YT UI
+      mute:           1,      // browser autoplay requires starting muted
+      controls:       0,
       disablekb:      1,
       modestbranding: 1,
-      rel:            0,      // no related videos on end
-      iv_load_policy: 3,      // no annotations
+      rel:            0,
+      iv_load_policy: 3,
       fs:             0,
       playsinline:    1,
     },
@@ -301,12 +382,25 @@ window.onYouTubeIframeAPIReady = function() {
 
 function onPlayerReady() {
   playerReady = true;
-  const saved = parseInt(localStorage.getItem('ftp_index') || '0');
-  videoIndex = (saved < PLAYLIST.length) ? saved : 0;
+
+  // Drop into the broadcast mid-stream
+  const { index, seekOffset } = getLivePosition();
+  videoIndex     = index;
+  liveSeekOffset = seekOffset;
   loadTrack(videoIndex);
+
+  // If user already clicked tune-in before player was ready
+  if (hasTunedIn) {
+    player.unMute();
+    player.setVolume(80);
+    _muted = false;
+    document.getElementById('mute-btn').textContent = '🔊';
+    document.getElementById('vol-icon').textContent = '🔊';
+    document.getElementById('vol-slider').value     = 80;
+  }
 }
 
-// ── KEY FUNCTION: load via API, not iframe src ──
+// ── Load track — always via loadVideoById (prevents ads) ──
 function loadTrack(index) {
   if (!playerReady || !player || !PLAYLIST.length) return;
   const track = PLAYLIST[index];
@@ -315,28 +409,25 @@ function loadTrack(index) {
   clearInterval(progressTimer);
   clipDuration = track.end - track.start;
 
-  // loadVideoById at the API level — this is what prevents ads.
-  // YouTube's ad system targets raw embed URLs, not programmatic
-  // IFrame API calls with explicit start/end parameters.
+  const startAt  = track.start + liveSeekOffset;
+  liveSeekOffset = 0; // consumed — only used on the first load
+
   player.loadVideoById({
     videoId:      track.id,
-    startSeconds: track.start,
+    startSeconds: startAt,
     endSeconds:   track.end,
   });
 
-  updateOverlay(track, index);
-  localStorage.setItem('ftp_index', index);
+  updateOverlay(track, index, startAt);
 }
 
 function onStateChange(e) {
   const S = YT.PlayerState;
   if (e.data === S.PLAYING) {
     isPlaying = true;
-    document.getElementById('play-btn').textContent = '⏸';
     startProgress();
   } else if (e.data === S.PAUSED) {
     isPlaying = false;
-    document.getElementById('play-btn').textContent = '▶';
     clearInterval(progressTimer);
   } else if (e.data === S.ENDED) {
     clearInterval(progressTimer);
@@ -346,84 +437,75 @@ function onStateChange(e) {
 
 function onError(e) {
   console.warn('YT error', e.data, '— skipping');
-  advance(); // skip unplayable / private / removed videos
+  advance();
 }
 
 function advance() {
-  showBump(() => {
-    videoIndex = isShuffle
-      ? Math.floor(Math.random() * PLAYLIST.length)
-      : (videoIndex + 1) % PLAYLIST.length;
-    loadTrack(videoIndex);
-  });
-}
+  // Brief static flash then channel bump, then next track
+  const s = document.getElementById('static');
+  s.classList.add('flash');
+  setTimeout(() => s.classList.remove('flash'), 80);
 
-function showBump(cb) {
   const b = document.getElementById('bump');
   b.classList.add('show');
-  setTimeout(() => { b.classList.remove('show'); cb(); }, 800);
+  setTimeout(() => {
+    b.classList.remove('show');
+    videoIndex = (videoIndex + 1) % PLAYLIST.length;
+    loadTrack(videoIndex);
+  }, 650);
 }
 
+// ── Progress ticker ──
 function startProgress() {
   clearInterval(progressTimer);
   progressTimer = setInterval(() => {
     if (!player || !playerReady) return;
-    const cur   = player.getCurrentTime();
-    const track = PLAYLIST[videoIndex];
+    const cur     = player.getCurrentTime();
+    const track   = PLAYLIST[videoIndex];
     const elapsed = Math.max(0, cur - track.start);
-    const pct   = clipDuration > 0 ? Math.min(100, (elapsed / clipDuration) * 100) : 0;
-    const pctS  = pct.toFixed(1) + '%';
-    document.getElementById('prog-fill').style.width  = pctS;
-    document.getElementById('prog-thumb').style.left  = pctS;
-    document.getElementById('clip-bar').style.width   = pctS;
-    document.getElementById('prog-cur').textContent   = fmt(elapsed);
-    document.getElementById('tc-clip').textContent    = `${fmt(elapsed)} / ${fmt(clipDuration)}`;
+    const pct     = clipDuration > 0 ? Math.min(100, (elapsed / clipDuration) * 100) : 0;
+    const pctS    = pct.toFixed(1) + '%';
+
+    document.getElementById('prog-fill').style.width = pctS;
+    document.getElementById('clip-bar').style.width  = pctS;
+    document.getElementById('prog-cur').textContent  = fmt(elapsed);
+
+    // Broadcast strip: position in today's daily cycle
+    const { posInCycle } = getLivePosition();
+    document.getElementById('broadcast-fill').style.width =
+      (posInCycle / TOTAL_SECONDS * 100).toFixed(3) + '%';
   }, 500);
 }
 
-function updateOverlay(track, index) {
-  const p = parseTitle(track.title);
+// ── Overlay ──
+function updateOverlay(track, index, startAt) {
+  const p     = parseTitle(track.title);
   const event = extractEvent(track.title);
+
   document.getElementById('lt-artist').textContent  = p.artist;
   document.getElementById('lt-context').textContent = p.context;
   document.getElementById('prog-dur').textContent   = fmt(clipDuration);
   document.getElementById('prog-cur').textContent   = '0:00';
-  document.getElementById('tc-clip').textContent    = `0:00 / ${fmt(clipDuration)}`;
   document.getElementById('prog-fill').style.width  = '0%';
-  document.getElementById('prog-thumb').style.left  = '0%';
   document.getElementById('clip-bar').style.width   = '0%';
-  document.getElementById('tc-current').textContent = index + 1;
-  document.getElementById('tc-total').textContent   = PLAYLIST.length;
+
+  // "Airing since" — the wall-clock moment this clip started
+  const nowMs       = Date.now();
+  const intoClipMs  = (startAt - track.start) * 1000;
+  const clipStartMs = nowMs - intoClipMs;
+  document.getElementById('bi-time').textContent = fmtTime(new Date(clipStartMs));
+
   const badge = document.getElementById('lt-badge');
   if (event) { badge.textContent = event; badge.style.display = 'inline-block'; }
   else        { badge.style.display = 'none'; }
-  const pct = ((index + 1) / PLAYLIST.length * 100).toFixed(2);
-  document.getElementById('playlist-fill').style.width = pct + '%';
+
+  // Initial broadcast strip position
+  const { posInCycle } = getLivePosition();
+  document.getElementById('broadcast-fill').style.width =
+    (posInCycle / TOTAL_SECONDS * 100).toFixed(3) + '%';
 }
 
-// ── Controls ──
-function togglePlay() {
-  if (!player) return;
-  isPlaying ? player.pauseVideo() : player.playVideo();
-}
-
-function prevTrack() {
-  clearInterval(progressTimer);
-  videoIndex = (videoIndex - 1 + PLAYLIST.length) % PLAYLIST.length;
-  loadTrack(videoIndex);
-}
-
-function nextTrack() {
-  clearInterval(progressTimer);
-  advance();
-}
-
-function toggleShuffle() {
-  isShuffle = !isShuffle;
-  document.getElementById('shuffle-btn').classList.toggle('shuffle-on', isShuffle);
-  localStorage.setItem('ftp_shuffle', isShuffle);
-}
-
+// ── Volume / Mute ──
 function toggleMute() {
   if (!player) return;
   _muted = !_muted;
@@ -434,11 +516,13 @@ function toggleMute() {
     document.getElementById('vol-slider').value     = 0;
   } else {
     player.unMute();
-    const v = Math.max(parseInt(document.getElementById('vol-slider').value) || 70, 10);
+    const v = Math.max(parseInt(document.getElementById('vol-slider').value) || 80, 10);
     player.setVolume(v);
     document.getElementById('vol-slider').value     = v;
     document.getElementById('mute-btn').textContent = '🔊';
     document.getElementById('vol-icon').textContent = '🔊';
+    // First unmute counts as tuning in
+    if (!hasTunedIn) { hasTunedIn = true; document.getElementById('tune-in').classList.add('hide'); }
   }
 }
 
@@ -446,30 +530,20 @@ function setVolume(v) {
   if (!player) return;
   v = parseInt(v);
   player.setVolume(v);
-  if (v > 0 && _muted) { player.unMute(); _muted = false; }
-  if (v === 0)          { player.mute();   _muted = true; }
+  if (v > 0 && _muted) {
+    player.unMute();
+    _muted = false;
+    if (!hasTunedIn) { hasTunedIn = true; document.getElementById('tune-in').classList.add('hide'); }
+  }
+  if (v === 0) { player.mute(); _muted = true; }
   document.getElementById('mute-btn').textContent = v > 0 ? '🔊' : '🔇';
   document.getElementById('vol-icon').textContent = v > 0 ? '🔊' : '🔇';
-}
-
-function scrub(e) {
-  if (!player || clipDuration === 0) return;
-  const rect = document.getElementById('prog-track').getBoundingClientRect();
-  const pct  = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
-  player.seekTo(PLAYLIST[videoIndex].start + pct * clipDuration, true);
 }
 
 function toggleFullscreen() {
   if (!document.fullscreenElement) document.documentElement.requestFullscreen();
   else document.exitFullscreen();
 }
-
-// ── Restore state ──
-isShuffle = localStorage.getItem('ftp_shuffle') === 'true';
-if (isShuffle) document.getElementById('shuffle-btn').classList.add('shuffle-on');
-
-// ── Boot ──
-loadYTAPI();
 </script>
 </body>
 </html>
