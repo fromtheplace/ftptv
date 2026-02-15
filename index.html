@@ -17,12 +17,8 @@
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html, body { width: 100%; height: 100%; overflow: hidden; background: #000; color: var(--white); font-family: 'DM Sans', sans-serif; }
-body{transform: scale(0.9);
-  border-radius: 40px;
-  border: 1px solid #2d2d2d;}
+
 /* VIDEO LAYER */
-
-
 #player-wrap {
   position: fixed;
   top: -90px; left: 0; right: 0; bottom: -90px;
@@ -31,78 +27,6 @@ body{transform: scale(0.9);
   pointer-events: none;
 }
 #yt-player { width: 100%; height: 100%; }
-#yt-player iframe {
-  filter:
-    brightness(1.05)
-    contrast(1.1)
-    saturate(1.15)
-    blur(0.3px);
-}
-  #player-wrap::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: inherit;
-  filter: blur(8px) brightness(1.2);
-  opacity: 0.15;
-  mix-blend-mode: screen;
-}
-  #player-wrap {
-  filter:
-    drop-shadow(0 0 1px rgba(255,0,0,0.25))
-    drop-shadow(1px 0 1px rgba(0,255,255,0.18));
-}
-  @keyframes chroma-drift {
-  0%,100% { filter: none; }
-  50% {
-    filter:
-      drop-shadow(-1px 0 rgba(255,0,0,0.3))
-      drop-shadow(1px 0 rgba(0,255,255,0.25));
-  }
-}
-
-#player-wrap {
-  animation: chroma-drift 6s ease-in-out infinite;
-}
-
-  @keyframes h-wobble {
-  0% { transform: translateX(0); }
-  20% { transform: translateX(-0.4px); }
-  40% { transform: translateX(0.3px); }
-  60% { transform: translateX(-0.2px); }
-  80% { transform: translateX(0.4px); }
-  100% { transform: translateX(0); }
-}
-
-#player-wrap {
-  animation: h-wobble 0.12s infinite linear;
-}
-  #phosphor-mask {
-  position: fixed;
-  inset: 0;
-  z-index: 3;
-  pointer-events: none;
-  background:
-    repeating-linear-gradient(
-      90deg,
-      rgba(255,0,0,0.04) 0,
-      rgba(255,0,0,0.04) 1px,
-      transparent 1px,
-      transparent 3px
-    );
-  mix-blend-mode: overlay;
-  opacity: 0.25;
-}
-@keyframes beam {
-  0%,100% { opacity: 1; }
-  50% { opacity: 0.96; }
-}
-
-#scanlines {
-  animation:
-    flicker 8s ease-in-out infinite,
-    beam 0.09s infinite;
-}
 
 /* CRT SCANLINES */
 #scanlines {
@@ -116,25 +40,7 @@ body{transform: scale(0.9);
 @keyframes flicker {
   0%,100%{opacity:1} 92%{opacity:1} 93%{opacity:0.82} 94%{opacity:1} 97%{opacity:0.88} 98%{opacity:1}
 }
-/* CRT CURVATURE */
-#crt-curvature {
-  position: fixed;
-  inset: -3%;
-  z-index: 4;
-  pointer-events: none;
 
-  /* edge darkening + subtle bow illusion */
-  background:
-    radial-gradient(
-      ellipse at center,
-      transparent 58%,
-      rgba(0,0,0,0.35) 72%,
-      rgba(0,0,0,0.85) 100%
-    );
-
-  transform: scale(1.04);
-  border-radius: 2.5% / 3.5%;
-}
 /* Vignette */
 #vignette {
   position: fixed; inset: 0; z-index: 3; pointer-events: none;
@@ -161,7 +67,7 @@ body{transform: scale(0.9);
 }
 #tune-in.hide { opacity: 0; pointer-events: none; }
 #tune-in .logotitle {
-  
+  font-size: clamp(32px, 7vw, 80px);
   margin-bottom: 2.4rem;
   animation: ti-breathe 3.5s ease-in-out infinite;
 }
@@ -186,16 +92,16 @@ body{transform: scale(0.9);
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0;
   opacity: 0; pointer-events: none;
   /* snap to black instantly on show, slow fade out */
-  transition: opacity 1.4s ease;
+  transition: opacity 0.4s ease;
 }
 #bump.show { opacity: 1; transition: opacity 0.05s ease; }
 
 .logotitle {
-  border: 2px solid rgba(255,255,255,0.5);
+  border: 1px solid rgba(255,255,255,0.5);
   width: fit-content;
   margin: 0 auto 2rem;
- border-radius: 54px;
-padding: 3.4rem 3.4rem 4rem;
+  border-radius: 32px;
+  padding: 1.4rem 2.4rem 2rem;
   line-height: 0.9;
   font-family: 'DM Sans', sans-serif;
   font-weight: 400;
@@ -204,12 +110,11 @@ padding: 3.4rem 3.4rem 4rem;
   text-align: center;
   letter-spacing: -0.02em;
   background: rgba(16,16,16,0.9);
-  transform: scale(0.6);
 }
 .logotitle strong {
   display: block;
-  font-weight: 500;
-  font-size: 1.5em;
+  font-weight: 800;
+  font-size: 1.15em;
   letter-spacing: -0.03em;
 }
 .bump-tag { font-family: 'Space Mono', monospace; font-size: clamp(7px,1vw,9px); letter-spacing: 0.4em; color: rgba(255,255,255,0.22); text-transform: uppercase; }
@@ -220,15 +125,7 @@ padding: 3.4rem 3.4rem 4rem;
   display: flex; align-items: center; justify-content: space-between; padding: 0 22px;
   background: linear-gradient(180deg, rgba(0,0,0,0.92) 0%, transparent 100%);
 }
-
-.nav-logo {   width: 150px;                   
-  height: 100px;    
-  margin-top: 3rem;
- background-image: url("images/ftptv.png");  background-repeat: no-repeat;    
-  background-position: center;     
-  background-size: contain;   
-font-family: 'Unbounded', sans-serif; font-weight: 900; font-size: 13px; letter-spacing: 0.22em; color: var(--white); user-select: none; }
-
+.nav-logo { font-family: 'Unbounded', sans-serif; font-weight: 900; font-size: 13px; letter-spacing: 0.22em; color: var(--white); user-select: none; }
 .nav-logo em { font-style: normal; color: var(--channel-green); }
 .nav-right { display: flex; align-items: center; gap: 14px; }
 
@@ -252,17 +149,21 @@ font-family: 'Unbounded', sans-serif; font-weight: 900; font-size: 13px; letter-
   font-size: 11px; letter-spacing: 0.25em; color: var(--white); text-transform: uppercase;
 }
 
+/* BROADCAST POSITION STRIP — how far through today's rotation */
+#broadcast-strip { position: fixed; top: 52px; left: 0; right: 0; height: 2px; z-index: 9; background: rgba(255,255,255,0.04); pointer-events: none; }
+#broadcast-fill { height: 100%; background: rgba(246,92,149,0.4); transition: width 1s linear; }
+
 /* LOWER THIRD — smallest print */
 #lower-third {
   position: fixed; bottom: 70px; left: 0; z-index: 10; padding: 0 22px; pointer-events: none;
 }
 .lt-now { display: flex; align-items: center; gap: 6px; margin-bottom: 3px; }
-.lt-now-dot { width: 4px; height: 4px; background: var(--channel-red); border-radius: 50%; animation: pg 1.4s ease-in-out infinite; }
+.lt-now-dot { width: 4px; height: 4px; background: var(--channel-green); border-radius: 50%; animation: pg 1.4s ease-in-out infinite; }
 @keyframes pg { 0%,100%{opacity:1} 50%{opacity:0.3} }
-.lt-now-label { font-family: 'Space Mono', monospace; font-size: 7px; letter-spacing: 0.3em; color: var(--channel-red); text-transform: uppercase; }
+.lt-now-label { font-family: 'Space Mono', monospace; font-size: 7px; letter-spacing: 0.3em; color: var(--channel-green); text-transform: uppercase; }
 .lt-artist { font-family: 'Unbounded', sans-serif; font-weight: 700; font-size: clamp(11px,1.4vw,15px); color: var(--white); letter-spacing: -0.01em; line-height: 1.15; text-shadow: 0 2px 12px rgba(0,0,0,0.8); }
 .lt-context { font-family: 'DM Sans', sans-serif; font-size: clamp(9px,1vw,11px); font-weight: 300; color: rgba(255,255,255,0.5); margin-top: 1px; letter-spacing: 0.02em; }
-.lt-event-badge { display: none !important; margin-top: 4px; padding: 2px 6px; background: var(--channel-pink); color: #000; font-family: 'Unbounded', sans-serif; font-weight: 700; font-size: 7px; letter-spacing: 0.18em; text-transform: uppercase; border-radius: 3px; transform: rotate(-1.5deg); }
+.lt-event-badge { display: inline-block; margin-top: 4px; padding: 2px 6px; background: var(--channel-pink); color: #000; font-family: 'Unbounded', sans-serif; font-weight: 700; font-size: 7px; letter-spacing: 0.18em; text-transform: uppercase; border-radius: 3px; transform: rotate(-1.5deg); }
 
 /* CLIP BAR — read-only */
 #clip-bar-wrap { position: fixed; bottom: 64px; left: 0; right: 0; z-index: 10; height: 3px; background: rgba(255,255,255,0.07); pointer-events: none; }
@@ -272,12 +173,12 @@ font-family: 'Unbounded', sans-serif; font-weight: 900; font-size: 13px; letter-
 #controls {
   position: fixed; bottom: 0; left: 0; right: 0; z-index: 10; height: 64px;
   display: flex; align-items: center; gap: 10px; padding: 0 18px;
-  background: rgba(0,0,0,0.18); border-top: 1px solid rgba(255,255,255,0.05);
+  background: rgba(0,0,0,0.88); border-top: 1px solid rgba(255,255,255,0.05);
   backdrop-filter: blur(12px);
 }
 
 .ctrl-progress { flex: 1; display: flex; flex-direction: column; gap: 3px; min-width: 0; }
-.prog-track { position: relative; height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; cursor: default; pointer-events: none; display: none;}
+.prog-track { position: relative; height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; cursor: default; pointer-events: none; }
 .prog-fill { height: 100%; background: rgba(14,255,199,0.7); border-radius: 2px; transition: width 0.5s linear; }
 .prog-times { display: flex; justify-content: space-between; font-family: 'Space Mono', monospace; font-size: 8px; color: rgba(255,255,255,0.25); letter-spacing: 0.05em; }
 
@@ -287,9 +188,9 @@ font-family: 'Unbounded', sans-serif; font-weight: 900; font-size: 13px; letter-
 </style>
 </head>
 <body>
+
 <div id="player-wrap"><div id="yt-player"></div></div>
-<div id="crt-curvature"></div>
-  <div id="scanlines"></div>
+<div id="scanlines"></div>
 <div id="vignette"></div>
 <div id="static"></div>
 
@@ -306,7 +207,7 @@ font-family: 'Unbounded', sans-serif; font-weight: 900; font-size: 13px; letter-
 </div>
 
 <div id="nav">
-  <div class="nav-logo"></div>
+  <div class="nav-logo">FTP<em>●</em></div>
   <div class="nav-right">
     <div class="live-pill"><div class="live-dot"></div><div class="live-text">Broadcasting</div></div>
     <div class="nav-btn" id="mute-btn" onclick="toggleMute()">🔇</div>
@@ -315,7 +216,7 @@ font-family: 'Unbounded', sans-serif; font-weight: 900; font-size: 13px; letter-
 </div>
 
 <div id="channel-id">Ōtepoti Music</div>
-
+<div id="broadcast-strip"><div id="broadcast-fill"></div></div>
 
 <div id="lower-third">
   <div class="lt-now"><div class="lt-now-dot"></div><div class="lt-now-label">Now Playing</div></div>
@@ -359,12 +260,19 @@ const TOTAL_SECONDS = PLAYLIST.reduce((s, t) => s + Math.max(0, t.end - t.start)
 
 // ── Live position: where in the rotation are we right now? ──
 function getLivePosition() {
-  const nowSec = Math.floor(Date.now() / 1000);
-
-  // Daily seed — shifts the "schedule" each UTC day
+  // Use integer math throughout — avoid float precision drift across browsers.
+  // BigInt for the seed multiplication (dayNumber * 3571 can exceed 2^31 after
+  // several years, but more importantly JS float loses integer precision above
+  // 2^53, and different engines round differently — causing cross-browser desync).
+  const nowSec    = Math.floor(Date.now() / 1000);
   const dayNumber = Math.floor(nowSec / 86400);
-  const dailySeed = (dayNumber * 3571) % TOTAL_SECONDS;
 
+  // Safe modulo seed: keep all values small before multiplying
+  const dailySeed = Number(
+    (BigInt(dayNumber % TOTAL_SECONDS) * 3571n) % BigInt(TOTAL_SECONDS)
+  );
+
+  // Both operands are now < TOTAL_SECONDS so sum < 2*TOTAL_SECONDS — no precision loss
   const posInCycle = (nowSec % TOTAL_SECONDS + dailySeed) % TOTAL_SECONDS;
 
   let elapsed = 0;
@@ -387,6 +295,7 @@ let clipDuration   = 0;
 let playerReady    = false;
 let liveSeekOffset = 0;
 let hasTunedIn     = false;
+let pendingSeek    = null;  // mobile: explicit seekTo after PLAYING fires
 
 // ── Formatters ──
 function fmt(s) {
@@ -495,6 +404,12 @@ function loadTrack(index) {
   const startAt  = track.start + liveSeekOffset;
   liveSeekOffset = 0; // consumed — only used on the first load
 
+  // Store the target seek position. Mobile browsers (iOS Safari, Android Chrome)
+  // often ignore startSeconds in loadVideoById for large timestamp values and
+  // play from 0:00 instead. We re-seek explicitly in onStateChange once PLAYING
+  // fires, which is the only reliable hook mobile gives us.
+  pendingSeek = startAt > track.start ? startAt : null;
+
   player.loadVideoById({
     videoId:      track.id,
     startSeconds: startAt,
@@ -508,6 +423,20 @@ function onStateChange(e) {
   const S = YT.PlayerState;
   if (e.data === S.PLAYING) {
     isPlaying = true;
+
+    // Mobile fix: re-seek to the correct position now that the player is
+    // confirmed playing. iOS/Android ignore startSeconds in loadVideoById
+    // for large values — this is the reliable fallback.
+    if (pendingSeek !== null) {
+      const target = pendingSeek;
+      pendingSeek  = null;
+      // Only seek if we're more than 2s off — avoids a seek loop on desktop
+      const current = player.getCurrentTime();
+      if (Math.abs(current - target) > 2) {
+        player.seekTo(target, true);
+      }
+    }
+
     startProgress();
   } else if (e.data === S.PAUSED) {
     isPlaying = false;
