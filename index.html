@@ -379,8 +379,7 @@ function getLivePosition() {
     (BigInt(dayNumber % TOTAL_SECONDS) * 3571n) % BigInt(TOTAL_SECONDS)
   );
 
-  // Keep both operands < TOTAL_SECONDS before adding to avoid precision loss
-  const posInCycle = ((nowSec % TOTAL_SECONDS) + dailySeed) % TOTAL_SECONDS;
+  const posInCycle = (nowSec % TOTAL_SECONDS + dailySeed) % TOTAL_SECONDS;
 
   let elapsed = 0;
   for (let i = 0; i < PLAYLIST.length; i++) {
@@ -402,7 +401,8 @@ let clipDuration   = 0;
 let playerReady    = false;
 let liveSeekOffset = 0;
 let hasTunedIn     = false;
-let pendingSeek    = null;  // mobile: explicit seekTo after PLAYING fires
+let pendingSeek    = null;
+let clipEndAt      = 0;  // manual endSeconds enforcement for mobile
 
 // ── Formatters ──
 function fmt(s) {
@@ -511,9 +511,11 @@ function loadTrack(index) {
   const startAt  = track.start + liveSeekOffset;
   liveSeekOffset = 0;
 
-  // Mobile fix: store target so we can re-seek once PLAYING fires
-  // iOS/Android ignore startSeconds for large values in loadVideoById
-  pendingSeek = startAt > track.start ? startAt : null;
+  // Store seek target — iOS ignores startSeconds in loadVideoById.
+  // We seek explicitly in BUFFERING state (more reliable than PLAYING on mobile).
+  pendingSeek = startAt;
+  // Store clip end so we can enforce it manually — endSeconds is unreliable on mobile.
+  clipEndAt = track.end;
 
   player.loadVideoById({
     videoId:      track.id,
@@ -526,10 +528,22 @@ function loadTrack(index) {
 
 function onStateChange(e) {
   const S = YT.PlayerState;
-  if (e.data === S.PLAYING) {
+
+  if (e.data === S.BUFFERING) {
+    // Seek here — BUFFERING is the earliest reliable hook on iOS Safari.
+    // By PLAYING the player has already committed to a start position.
+    if (pendingSeek !== null) {
+      const target = pendingSeek;
+      pendingSeek  = null;
+      const current = player.getCurrentTime();
+      if (Math.abs(current - target) > 2) {
+        player.seekTo(target, true);
+      }
+    }
+
+  } else if (e.data === S.PLAYING) {
     isPlaying = true;
-    // Mobile re-seek: iOS/Android ignore startSeconds, so we seek explicitly
-    // once the player confirms it's playing
+    // Second-chance seek in case BUFFERING fired before the video was ready
     if (pendingSeek !== null) {
       const target = pendingSeek;
       pendingSeek  = null;
@@ -538,9 +552,11 @@ function onStateChange(e) {
       }
     }
     startProgress();
+
   } else if (e.data === S.PAUSED) {
     isPlaying = false;
     clearInterval(progressTimer);
+
   } else if (e.data === S.ENDED) {
     clearInterval(progressTimer);
     advance(true);
@@ -553,8 +569,6 @@ function onError(e) {
 }
 
 function advance(fromEnd = false) {
-  // Wall clock is the single source of truth — never increment a local counter.
-  // This means refresh and natural track-end both land in exactly the same place.
   const s = document.getElementById('static');
   s.classList.add('flash');
   setTimeout(() => s.classList.remove('flash'), 80);
@@ -565,8 +579,6 @@ function advance(fromEnd = false) {
     b.classList.remove('show');
     const { index, seekOffset } = getLivePosition();
     videoIndex     = index;
-    // fromEnd: track just finished naturally — start next cleanly from its
-    // beginning rather than seeked into it due to the 650ms bump duration
     liveSeekOffset = fromEnd ? 0 : seekOffset;
     loadTrack(videoIndex);
   }, 650);
@@ -586,6 +598,12 @@ function startProgress() {
     document.getElementById('prog-fill').style.width = pctS;
     document.getElementById('clip-bar').style.width  = pctS;
     document.getElementById('prog-cur').textContent  = fmt(elapsed);
+
+    // Manual endSeconds enforcement — mobile ignores the endSeconds param
+    if (clipEndAt > 0 && cur >= clipEndAt - 0.5) {
+      clearInterval(progressTimer);
+      advance(true);
+    }
   }, 500);
 }
 
