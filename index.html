@@ -57,6 +57,35 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: #000; colo
 }
 #static.flash { opacity: 0.18; }
 
+/* TUNE-IN GATE */
+#tune-in {
+  position: fixed; inset: 0; z-index: 50;
+  background: #0a0a0a;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0;
+  cursor: pointer;
+  transition: opacity 0.6s ease;
+}
+#tune-in.hide { opacity: 0; pointer-events: none; }
+#tune-in .logotitle {
+  font-size: clamp(32px, 7vw, 80px);
+  border-color: rgba(255,255,255,0.9);
+  margin-bottom: 2.4rem;
+  animation: ti-breathe 3.5s ease-in-out infinite;
+}
+@keyframes ti-breathe { 0%,100%{opacity:0.8} 50%{opacity:1} }
+.ti-sub {
+  font-family: 'Space Mono', monospace; font-size: clamp(7px,1vw,9px);
+  letter-spacing: 0.45em; color: rgba(255,255,255,0.18); text-transform: uppercase;
+  margin-bottom: 2.8rem;
+}
+.ti-cta {
+  font-family: 'Space Mono', monospace; font-size: clamp(8px,1vw,10px);
+  letter-spacing: 0.35em; color: rgba(255,255,255,0.38); text-transform: uppercase;
+  border: 1px solid rgba(255,255,255,0.12); padding: 10px 24px; border-radius: 3px;
+  animation: ti-blink 2.2s step-end infinite;
+}
+@keyframes ti-blink { 0%,100%{opacity:1} 50%{opacity:0.25} }
+
 /* CHANNEL BUMP */
 #bump {
   position: fixed; inset: 0; z-index: 20;
@@ -159,6 +188,13 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: #000; colo
 <div id="vignette"></div>
 <div id="static"></div>
 
+<!-- TUNE-IN GATE -->
+<div id="tune-in" onclick="tuneIn()">
+  <div class="logotitle">from the<br><strong>place</strong></div>
+  <div class="ti-sub">Ōtepoti Music Television</div>
+  <div class="ti-cta">Click to tune in</div>
+</div>
+
 <div id="bump">
   <div class="logotitle">from the<br><strong>place</strong></div>
   <div class="bump-tag">You're watching FROM THE PLACE</div>
@@ -168,7 +204,7 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: #000; colo
   <div class="nav-logo">FTP<em>●</em></div>
   <div class="nav-right">
     <div class="live-pill"><div class="live-dot"></div><div class="live-text">Broadcasting</div></div>
-    <div class="nav-btn" id="mute-btn" onclick="toggleMute()">🔊</div>
+    <div class="nav-btn" id="mute-btn" onclick="toggleMute()">🔇</div>
     <div class="nav-btn" onclick="toggleFullscreen()">⛶</div>
   </div>
 </div>
@@ -239,12 +275,13 @@ function getLivePosition() {
 
 let player         = null;
 let videoIndex     = 0;
-let _muted         = false;
+let _muted         = true;
 let isPlaying      = false;
 let progressTimer  = null;
 let clipDuration   = 0;
 let playerReady    = false;
 let liveSeekOffset = 0;
+let hasTunedIn     = false;
 
 // ── Formatters ──
 function fmt(s) {
@@ -274,6 +311,22 @@ function extractEvent(title) {
   if (/Waitati/i.test(title))          return 'WAITATI';
   if (/Nook/i.test(title))             return 'NOOK & CRANNY';
   return null;
+}
+
+// ── Tune-in gate ──
+function tuneIn() {
+  if (hasTunedIn) return;
+  hasTunedIn = true;
+  document.getElementById('tune-in').classList.add('hide');
+  if (playerReady && player) {
+    player.unMute();
+    player.setVolume(80);
+    _muted = false;
+    document.getElementById('mute-btn').textContent = '🔊';
+    document.getElementById('vol-icon').textContent = '🔊';
+    document.getElementById('vol-slider').value     = 80;
+  }
+  // if player isn't ready yet, onPlayerReady will unmute when it fires
 }
 
 // ── Boot YouTube IFrame API ──
@@ -308,19 +361,21 @@ window.onYouTubeIframeAPIReady = function() {
 function onPlayerReady() {
   playerReady = true;
 
-  // Unmute immediately — no gate
-  player.unMute();
-  player.setVolume(80);
-  _muted = false;
-  document.getElementById('mute-btn').textContent = '🔊';
-  document.getElementById('vol-icon').textContent = '🔊';
-  document.getElementById('vol-slider').value     = 80;
-
   // Drop into the broadcast mid-stream
   const { index, seekOffset } = getLivePosition();
   videoIndex     = index;
   liveSeekOffset = seekOffset;
   loadTrack(videoIndex);
+
+  // Only unmute if user has already clicked tune-in
+  if (hasTunedIn) {
+    player.unMute();
+    player.setVolume(80);
+    _muted = false;
+    document.getElementById('mute-btn').textContent = '🔊';
+    document.getElementById('vol-icon').textContent = '🔊';
+    document.getElementById('vol-slider').value     = 80;
+  }
 }
 
 // ── Load track — always via loadVideoById (prevents ads) ──
@@ -438,6 +493,7 @@ function toggleMute() {
     document.getElementById('vol-slider').value     = v;
     document.getElementById('mute-btn').textContent = '🔊';
     document.getElementById('vol-icon').textContent = '🔊';
+    if (!hasTunedIn) { hasTunedIn = true; document.getElementById('tune-in').classList.add('hide'); }
   }
 }
 
@@ -448,6 +504,7 @@ function setVolume(v) {
   if (v > 0 && _muted) {
     player.unMute();
     _muted = false;
+    if (!hasTunedIn) { hasTunedIn = true; document.getElementById('tune-in').classList.add('hide'); }
   }
   if (v === 0) { player.mute(); _muted = true; }
   document.getElementById('mute-btn').textContent = v > 0 ? '🔊' : '🔇';
