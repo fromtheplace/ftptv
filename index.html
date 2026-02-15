@@ -57,50 +57,32 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: #000; colo
 }
 #static.flash { opacity: 0.18; }
 
-/* TUNE-IN GATE */
-#tune-in {
-  position: fixed; inset: 0; z-index: 50;
-  background: #000;
-  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px;
-  cursor: pointer;
-  transition: opacity 0.5s ease;
-}
-#tune-in.hide { opacity: 0; pointer-events: none; }
-.ti-logo {
-  font-family: 'Unbounded', sans-serif; font-weight: 900;
-  font-size: clamp(52px,10vw,100px); letter-spacing: 0.1em; color: var(--white);
-  animation: ti-breathe 3s ease-in-out infinite;
-}
-.ti-logo em { font-style: normal; color: var(--channel-green); }
-@keyframes ti-breathe { 0%,100%{opacity:0.85} 50%{opacity:1} }
-.ti-tag {
-  font-family: 'Space Mono', monospace; font-size: clamp(7px,1.1vw,10px);
-  letter-spacing: 0.45em; color: rgba(255,255,255,0.22); text-transform: uppercase;
-}
-.ti-clock {
-  font-family: 'Space Mono', monospace; font-size: clamp(13px,1.8vw,18px);
-  color: rgba(255,255,255,0.2); letter-spacing: 0.12em; margin-top: 8px;
-}
-.ti-cta {
-  margin-top: 12px;
-  font-family: 'Space Mono', monospace; font-size: clamp(8px,1vw,10px);
-  letter-spacing: 0.35em; color: rgba(255,255,255,0.4); text-transform: uppercase;
-  border: 1px solid rgba(255,255,255,0.12); padding: 10px 22px; border-radius: 3px;
-  animation: ti-blink 2s step-end infinite;
-}
-@keyframes ti-blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
-
 /* CHANNEL BUMP */
 #bump {
   position: fixed; inset: 0; z-index: 20;
   background: #000;
-  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
-  opacity: 0; pointer-events: none; transition: opacity 0.12s;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0;
+  opacity: 0; pointer-events: none;
+  /* snap to black instantly on show, slow fade out */
+  transition: opacity 0.4s ease;
 }
-#bump.show { opacity: 1; }
-.bump-logo { font-family: 'Unbounded', sans-serif; font-weight: 900; font-size: clamp(40px,8vw,80px); letter-spacing: 0.12em; color: var(--white); }
-.bump-logo em { font-style: normal; color: var(--channel-green); }
-.bump-tag { font-family: 'Space Mono', monospace; font-size: clamp(8px,1.2vw,11px); letter-spacing: 0.4em; color: rgba(255,255,255,0.25); text-transform: uppercase; }
+#bump.show { opacity: 1; transition: opacity 0.05s ease; }
+
+.logotitle {
+  border: 1px solid rgba(255,255,255,0.85);
+  width: fit-content;
+  margin: auto auto 2rem;
+  border-radius: 39px;
+  padding: 1.5rem 2rem 2.2rem;
+  line-height: 0.85;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 400;
+  font-size: clamp(28px, 6vw, 64px);
+  color: var(--white);
+  text-align: center;
+  letter-spacing: -0.01em;
+}
+.bump-tag { font-family: 'Space Mono', monospace; font-size: clamp(7px,1vw,9px); letter-spacing: 0.4em; color: rgba(255,255,255,0.22); text-transform: uppercase; }
 
 /* TOP NAV */
 #nav {
@@ -116,11 +98,6 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: #000; colo
 .live-dot { width: 6px; height: 6px; background: var(--channel-red); border-radius: 50%; animation: pulse 1.4s ease-in-out infinite; }
 @keyframes pulse { 0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(255,43,43,0.5)} 50%{opacity:0.6;box-shadow:0 0 0 5px rgba(255,43,43,0)} }
 .live-text { font-family: 'Space Mono', monospace; font-size: 8px; letter-spacing: 0.2em; color: var(--channel-red); text-transform: uppercase; }
-
-#broadcast-clock {
-  font-family: 'Space Mono', monospace; font-size: 10px;
-  letter-spacing: 0.1em; color: rgba(255,255,255,0.28);
-}
 
 .nav-btn {
   width: 34px; height: 34px; display: flex; align-items: center; justify-content: center;
@@ -141,22 +118,17 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: #000; colo
 #broadcast-strip { position: fixed; top: 52px; left: 0; right: 0; height: 2px; z-index: 9; background: rgba(255,255,255,0.04); pointer-events: none; }
 #broadcast-fill { height: 100%; background: rgba(246,92,149,0.4); transition: width 1s linear; }
 
-/* LOWER THIRD */
+/* LOWER THIRD — smallest print */
 #lower-third {
   position: fixed; bottom: 70px; left: 0; z-index: 10; padding: 0 22px; pointer-events: none;
 }
-.lt-now { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }
-.lt-now-dot { width: 5px; height: 5px; background: var(--channel-green); border-radius: 50%; animation: pg 1.4s ease-in-out infinite; }
+.lt-now { display: flex; align-items: center; gap: 6px; margin-bottom: 3px; }
+.lt-now-dot { width: 4px; height: 4px; background: var(--channel-green); border-radius: 50%; animation: pg 1.4s ease-in-out infinite; }
 @keyframes pg { 0%,100%{opacity:1} 50%{opacity:0.3} }
-.lt-now-label { font-family: 'Space Mono', monospace; font-size: 8px; letter-spacing: 0.3em; color: var(--channel-green); text-transform: uppercase; }
-.lt-artist { font-family: 'Unbounded', sans-serif; font-weight: 700; font-size: clamp(20px,3.5vw,38px); color: var(--white); letter-spacing: -0.01em; line-height: 1.05; text-shadow: 0 2px 20px rgba(0,0,0,0.8); }
-.lt-context { font-family: 'DM Sans', sans-serif; font-size: clamp(11px,1.4vw,15px); font-weight: 300; color: rgba(255,255,255,0.55); margin-top: 2px; letter-spacing: 0.02em; }
-.lt-event-badge { display: inline-block; margin-top: 7px; padding: 3px 9px; background: var(--channel-pink); color: #000; font-family: 'Unbounded', sans-serif; font-weight: 700; font-size: 8px; letter-spacing: 0.18em; text-transform: uppercase; border-radius: 3px; transform: rotate(-1.5deg); }
-
-/* BROADCAST INFO — replaces track counter */
-#broadcast-info { position: fixed; bottom: 70px; right: 22px; z-index: 10; text-align: right; pointer-events: none; }
-.bi-label { font-family: 'Space Mono', monospace; font-size: 8px; color: rgba(255,255,255,0.2); letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 3px; }
-.bi-time { font-family: 'Space Mono', monospace; font-size: 14px; color: rgba(255,255,255,0.5); letter-spacing: 0.06em; }
+.lt-now-label { font-family: 'Space Mono', monospace; font-size: 7px; letter-spacing: 0.3em; color: var(--channel-green); text-transform: uppercase; }
+.lt-artist { font-family: 'Unbounded', sans-serif; font-weight: 700; font-size: clamp(11px,1.4vw,15px); color: var(--white); letter-spacing: -0.01em; line-height: 1.15; text-shadow: 0 2px 12px rgba(0,0,0,0.8); }
+.lt-context { font-family: 'DM Sans', sans-serif; font-size: clamp(9px,1vw,11px); font-weight: 300; color: rgba(255,255,255,0.5); margin-top: 1px; letter-spacing: 0.02em; }
+.lt-event-badge { display: inline-block; margin-top: 4px; padding: 2px 6px; background: var(--channel-pink); color: #000; font-family: 'Unbounded', sans-serif; font-weight: 700; font-size: 7px; letter-spacing: 0.18em; text-transform: uppercase; border-radius: 3px; transform: rotate(-1.5deg); }
 
 /* CLIP BAR — read-only */
 #clip-bar-wrap { position: fixed; bottom: 64px; left: 0; right: 0; z-index: 10; height: 3px; background: rgba(255,255,255,0.07); pointer-events: none; }
@@ -187,16 +159,8 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: #000; colo
 <div id="vignette"></div>
 <div id="static"></div>
 
-<!-- TUNE-IN GATE: first click unlocks audio, starts mid-stream broadcast -->
-<div id="tune-in" onclick="tuneIn()">
-  <div class="ti-logo">FT<em>P</em></div>
-  <div class="ti-tag">Ōtepoti Music Television</div>
-  <div class="ti-clock" id="ti-clock"></div>
-  <div class="ti-cta">Click to tune in</div>
-</div>
-
 <div id="bump">
-  <div class="bump-logo">FT<em>P</em></div>
+  <div class="logotitle">from the<br><strong>place</strong></div>
   <div class="bump-tag">You're watching FROM THE PLACE</div>
 </div>
 
@@ -204,8 +168,7 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: #000; colo
   <div class="nav-logo">FTP<em>●</em></div>
   <div class="nav-right">
     <div class="live-pill"><div class="live-dot"></div><div class="live-text">Broadcasting</div></div>
-    <span id="broadcast-clock"></span>
-    <div class="nav-btn" id="mute-btn" onclick="toggleMute()">🔇</div>
+    <div class="nav-btn" id="mute-btn" onclick="toggleMute()">🔊</div>
     <div class="nav-btn" onclick="toggleFullscreen()">⛶</div>
   </div>
 </div>
@@ -219,12 +182,6 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: #000; colo
   <div class="lt-context" id="lt-context"></div>
   <div class="lt-event-badge" id="lt-badge" style="display:none"></div>
 </div>
-
-<div id="broadcast-info">
-  <div class="bi-label">Airing since</div>
-  <div class="bi-time" id="bi-time">—</div>
-</div>
-
 <div id="clip-bar-wrap"><div id="clip-bar"></div></div>
 
 <div id="controls">
@@ -282,22 +239,17 @@ function getLivePosition() {
 
 let player         = null;
 let videoIndex     = 0;
-let _muted         = true;
+let _muted         = false;
 let isPlaying      = false;
 let progressTimer  = null;
 let clipDuration   = 0;
 let playerReady    = false;
 let liveSeekOffset = 0;
-let hasTunedIn     = false;
 
 // ── Formatters ──
 function fmt(s) {
   s = Math.max(0, Math.floor(s));
   return `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;
-}
-function fmtTime(date) {
-  const h = date.getHours(), m = String(date.getMinutes()).padStart(2,'0'), s = String(date.getSeconds()).padStart(2,'0');
-  return `${h % 12 || 12}:${m}:${s}${h >= 12 ? 'pm' : 'am'}`;
 }
 
 function parseTitle(title) {
@@ -322,33 +274,6 @@ function extractEvent(title) {
   if (/Waitati/i.test(title))          return 'WAITATI';
   if (/Nook/i.test(title))             return 'NOOK & CRANNY';
   return null;
-}
-
-// ── Live clock — runs on tune-in screen and in nav ──
-function tickClock() {
-  const t = fmtTime(new Date());
-  const a = document.getElementById('ti-clock');
-  const b = document.getElementById('broadcast-clock');
-  if (a) a.textContent = t;
-  if (b) b.textContent = t;
-}
-tickClock();
-setInterval(tickClock, 1000);
-
-// ── Tune-in gate ──
-function tuneIn() {
-  if (hasTunedIn) return;
-  hasTunedIn = true;
-  document.getElementById('tune-in').classList.add('hide');
-  if (playerReady && player) {
-    player.unMute();
-    player.setVolume(80);
-    _muted = false;
-    document.getElementById('mute-btn').textContent = '🔊';
-    document.getElementById('vol-icon').textContent = '🔊';
-    document.getElementById('vol-slider').value     = 80;
-  }
-  // if player isn't ready yet, onPlayerReady will handle unmute
 }
 
 // ── Boot YouTube IFrame API ──
@@ -383,21 +308,19 @@ window.onYouTubeIframeAPIReady = function() {
 function onPlayerReady() {
   playerReady = true;
 
+  // Unmute immediately — no gate
+  player.unMute();
+  player.setVolume(80);
+  _muted = false;
+  document.getElementById('mute-btn').textContent = '🔊';
+  document.getElementById('vol-icon').textContent = '🔊';
+  document.getElementById('vol-slider').value     = 80;
+
   // Drop into the broadcast mid-stream
   const { index, seekOffset } = getLivePosition();
   videoIndex     = index;
   liveSeekOffset = seekOffset;
   loadTrack(videoIndex);
-
-  // If user already clicked tune-in before player was ready
-  if (hasTunedIn) {
-    player.unMute();
-    player.setVolume(80);
-    _muted = false;
-    document.getElementById('mute-btn').textContent = '🔊';
-    document.getElementById('vol-icon').textContent = '🔊';
-    document.getElementById('vol-slider').value     = 80;
-  }
 }
 
 // ── Load track — always via loadVideoById (prevents ads) ──
@@ -489,12 +412,6 @@ function updateOverlay(track, index, startAt) {
   document.getElementById('prog-fill').style.width  = '0%';
   document.getElementById('clip-bar').style.width   = '0%';
 
-  // "Airing since" — the wall-clock moment this clip started
-  const nowMs       = Date.now();
-  const intoClipMs  = (startAt - track.start) * 1000;
-  const clipStartMs = nowMs - intoClipMs;
-  document.getElementById('bi-time').textContent = fmtTime(new Date(clipStartMs));
-
   const badge = document.getElementById('lt-badge');
   if (event) { badge.textContent = event; badge.style.display = 'inline-block'; }
   else        { badge.style.display = 'none'; }
@@ -521,8 +438,6 @@ function toggleMute() {
     document.getElementById('vol-slider').value     = v;
     document.getElementById('mute-btn').textContent = '🔊';
     document.getElementById('vol-icon').textContent = '🔊';
-    // First unmute counts as tuning in
-    if (!hasTunedIn) { hasTunedIn = true; document.getElementById('tune-in').classList.add('hide'); }
   }
 }
 
@@ -533,7 +448,6 @@ function setVolume(v) {
   if (v > 0 && _muted) {
     player.unMute();
     _muted = false;
-    if (!hasTunedIn) { hasTunedIn = true; document.getElementById('tune-in').classList.add('hide'); }
   }
   if (v === 0) { player.mute(); _muted = true; }
   document.getElementById('mute-btn').textContent = v > 0 ? '🔊' : '🔇';
