@@ -2,8 +2,19 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>FROM THE PLACE — CHANNEL</title>
+
+<!-- PWA -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0a0a0a">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="FTP">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<!-- Prevents iOS from dimming/suspending audio context on lock -->
+<meta name="apple-audio-playback-mode" content="background">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Unbounded:wght@400;700;900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
@@ -315,7 +326,7 @@ font-family: 'Unbounded', sans-serif; font-weight: 900; font-size: 13px; letter-
 </div>
 
 <div id="channel-id">Ōtepoti Music</div>
-<div id="broadcast-strip"><div id="broadcast-fill"></div></div>
+
 
 <div id="lower-third">
   <div class="lt-now"><div class="lt-now-dot"></div><div class="lt-now-label">Now Playing</div></div>
@@ -359,19 +370,15 @@ const TOTAL_SECONDS = PLAYLIST.reduce((s, t) => s + Math.max(0, t.end - t.start)
 
 // ── Live position: where in the rotation are we right now? ──
 function getLivePosition() {
-  // Use integer math throughout — avoid float precision drift across browsers.
-  // BigInt for the seed multiplication (dayNumber * 3571 can exceed 2^31 after
-  // several years, but more importantly JS float loses integer precision above
-  // 2^53, and different engines round differently — causing cross-browser desync).
-  const nowSec    = Math.floor(Date.now() / 1000);
-  const dayNumber = Math.floor(nowSec / 86400);
+  const nowSec = Math.floor(Date.now() / 1000);
 
-  // Safe modulo seed: keep all values small before multiplying
+  // Integer-safe seed — avoids float precision drift across JS engines
+  // (Safari/Chrome/Firefox round differently above ~2^31)
+  const dayNumber = Math.floor(nowSec / 86400);
   const dailySeed = Number(
     (BigInt(dayNumber % TOTAL_SECONDS) * 3571n) % BigInt(TOTAL_SECONDS)
   );
 
-  // Both operands are now < TOTAL_SECONDS so sum < 2*TOTAL_SECONDS — no precision loss
   const posInCycle = (nowSec % TOTAL_SECONDS + dailySeed) % TOTAL_SECONDS;
 
   let elapsed = 0;
@@ -501,12 +508,10 @@ function loadTrack(index) {
   clipDuration = track.end - track.start;
 
   const startAt  = track.start + liveSeekOffset;
-  liveSeekOffset = 0; // consumed — only used on the first load
+  liveSeekOffset = 0;
 
-  // Store the target seek position. Mobile browsers (iOS Safari, Android Chrome)
-  // often ignore startSeconds in loadVideoById for large timestamp values and
-  // play from 0:00 instead. We re-seek explicitly in onStateChange once PLAYING
-  // fires, which is the only reliable hook mobile gives us.
+  // Mobile fix: store target so we can re-seek once PLAYING fires
+  // iOS/Android ignore startSeconds for large values in loadVideoById
   pendingSeek = startAt > track.start ? startAt : null;
 
   player.loadVideoById({
@@ -522,20 +527,15 @@ function onStateChange(e) {
   const S = YT.PlayerState;
   if (e.data === S.PLAYING) {
     isPlaying = true;
-
-    // Mobile fix: re-seek to the correct position now that the player is
-    // confirmed playing. iOS/Android ignore startSeconds in loadVideoById
-    // for large values — this is the reliable fallback.
+    // Mobile re-seek: iOS/Android ignore startSeconds, so we seek explicitly
+    // once the player confirms it's playing
     if (pendingSeek !== null) {
       const target = pendingSeek;
       pendingSeek  = null;
-      // Only seek if we're more than 2s off — avoids a seek loop on desktop
-      const current = player.getCurrentTime();
-      if (Math.abs(current - target) > 2) {
+      if (Math.abs(player.getCurrentTime() - target) > 2) {
         player.seekTo(target, true);
       }
     }
-
     startProgress();
   } else if (e.data === S.PAUSED) {
     isPlaying = false;
@@ -648,6 +648,42 @@ function toggleFullscreen() {
   if (!document.fullscreenElement) document.documentElement.requestFullscreen();
   else document.exitFullscreen();
 }
+
+// ── PWA: Register Service Worker ─────────────────────────────────────────────
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').catch(() => {});
+}
+
+// ── MediaSession: lock screen controls + background audio ────────────────────
+// Registering any MediaSession action tells the OS to keep our audio context
+// alive when the screen locks — same mechanism Spotify/Apple Music use.
+function updateMediaSession(track) {
+  if (!('mediaSession' in navigator)) return;
+  const p = parseTitle(track.title);
+
+  navigator.mediaSession.metadata = new MediaMetadata({
+    title:  p.artist,
+    artist: p.context || 'FROM THE PLACE',
+    album:  'Ōtepoti Music Television',
+    artwork: [
+      { src: 'icons/icon-192.png', sizes: '192x192', type: 'image/png' },
+      { src: 'icons/icon-512.png', sizes: '512x512', type: 'image/png' },
+    ]
+  });
+
+  // These actions do nothing functionally (live TV — no seeking)
+  // but MUST be registered for iOS to keep audio alive on lock screen
+  navigator.mediaSession.setActionHandler('play',  () => player?.playVideo());
+  navigator.mediaSession.setActionHandler('pause', () => player?.pauseVideo());
+  // No previoustrack / nexttrack — live broadcast, no skipping
+}
+
+// Call updateMediaSession whenever a track loads
+const _origUpdateOverlay = updateOverlay;
+updateOverlay = function(track, index, startAt) {
+  _origUpdateOverlay(track, index, startAt);
+  updateMediaSession(track);
+};
 </script>
 </body>
 </html>
