@@ -472,21 +472,24 @@ function tuneIn() {
   hasTunedIn = true;
   clearInterval(_countdownTimer);
   document.getElementById('tune-in').classList.add('hide');
-  if (player) {
+
+  if (playerReady && player) {
     player.unMute();
     player.setVolume(80);
-    player.playVideo();   // force play in case browser suspended it
+    player.playVideo();
     _muted = false;
     document.getElementById('mute-btn').textContent = '🔊';
     document.getElementById('vol-icon').textContent = '🔊';
     document.getElementById('vol-slider').value     = 80;
   }
+  // If player isn't ready yet, onPlayerReady checks hasTunedIn and unmutes then
 }
 
 // ── Auto tune-in countdown (5 → 0 then fires) ────────────────────────────────
-// Started from onPlayerReady so the player is guaranteed ready when it fires.
+// Starts immediately on page load — independent of player readiness.
+// tuneIn() handles the case where player isn't ready yet.
 let _countdownTimer = null;
-function startCountdown() {
+(function startCountdown() {
   const TOTAL   = 5;
   const circumf = 113; // 2π × 18
   let remaining = TOTAL;
@@ -505,7 +508,7 @@ function startCountdown() {
       tuneIn();
     }
   }, 1000);
-}
+})();
 
 // ── Boot YouTube IFrame API ──
 (function loadYTAPI() {
@@ -545,17 +548,15 @@ function onPlayerReady() {
   liveSeekOffset = seekOffset;
   loadTrack(videoIndex);
 
-  // Only unmute if user already clicked tune-in before player was ready
+  // If countdown already fired before player was ready, unmute now
   if (hasTunedIn) {
     player.unMute();
     player.setVolume(80);
+    player.playVideo();
     _muted = false;
     document.getElementById('mute-btn').textContent = '🔊';
     document.getElementById('vol-icon').textContent = '🔊';
     document.getElementById('vol-slider').value     = 80;
-  } else {
-    // Player is ready — start the countdown now so it fires when player exists
-    startCountdown();
   }
 }
 
