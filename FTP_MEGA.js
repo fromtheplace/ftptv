@@ -38,7 +38,7 @@ var videoPlaylist = [
 	{ id: 'O6e3xm1P3gc', start: 0, end: 394, title: 'Cash Guitar - Hocus Pocus' },
 	{ id: 'wIlck2PsFVM', start: 1, end: 1970, title: 'Local Elementz & Roarz - ŌHHH22 ' },
 	{ id: 'TXrevEe3yAA', start: 1807, end: 1897, title: 'House of 2000 - Tech Scratch (outro)' },
-	{ id: 'TXrevEe3yAA', start: 742, end: 801, title: 'Cuck - ' },
+	,
 	{ id: 'gxxH73S1sac', start: 0, end: 148, title: 'MadNeTeX — Saturns Rings' },
 	{ id: 'y3-LF-9y1Vw', start: 805, end: 1288, title: 'Kylie Price - Searching for a Saint' },
 	{ id: 'SLsg2lt_wC8', start: 1010, end: 2340, title: 'House of 2000 - Evo' },
@@ -55,7 +55,7 @@ var videoPlaylist = [
 	{ id: 'XqleQ6NP9oM', start: 1046, end: 1263, title: 'KOMMI - Rere' },
 	{ id: 'y3-LF-9y1Vw', start: 1, end: 238, title: 'Kylie Price - Not Lost' },
 	{ id: 'XNdZ249SJlU', start: 1560, end: 1877, title: 'FOTA - Wake up' },
-	{ id: 'TXrevEe3yAA', start: 260, end: 1807, title: 'Cuck - ' },
+	
 	{ id: 'XNdZ249SJlU', start: 1877, end: 2288, title: 'FOTA - She got it' },
 	{ id: '7HxENNQql38', start: 1945, end: 2684, title: 'BETSY & THE RECKLESS - Space Concert' },
 	{ id: '7HxENNQql38', start: 2960, end: 4851, title: 'Brendan Christie - Space Concert' },
@@ -92,7 +92,7 @@ var videoPlaylist = [
 	{ id: 'nmoTBVEOmPQ', start: 1, end: 942, title: 'Christian Tucker - ŌHHH22 ' },
 	{ id: 'gxxH73S1sac', start: 942, end: 1081, title: 'MadNeTeX —Swords over war' },
 	{ id: 'x4ihJ5iqSHY', start: 312, end: 448, title: 'RYECHI -  MULL IT UP' },
-	{ id: 'TXrevEe3yAA', start: 340, end: 387, title: 'Cuck - ' },
+	
 	{ id: 't3BjeWZtcdg', start: 1, end: 248, title: 'The Rhododendrons - The Apple ' },
 	{ id: 'uhFob1qiNio', start: 1993, end: 1993, title: 'EXPJ - Step' },
 	{ id: 'x4ihJ5iqSHY', start: 448, end: 575, title: 'RYECHI -  TERRESTRIAL' },
@@ -106,7 +106,7 @@ var videoPlaylist = [
 	{ id: 'Q8BTkUb93uc', start: 1, end: 1225, title: 'MIC SURE Ft. Assorted Hamish — ŌHHH24 [FULL SET] #rap' },
 	{ id: 'yMalm0erWto', start: 2540, end: 2870, title: 'BROKEN HEARTBREAKERS - A Night for Nick Knox' },
 	{ id: 'O6e3xm1P3gc', start: 394, end: 700, title: 'Cash Guitar - Christmas Time ' },
-	{ id: 'TXrevEe3yAA', start: 617, end: 448, title: 'Cuck - ' },
+	
 	{ id: 'XqleQ6NP9oM', start: 906, end: 1046, title: 'KOMMI - Huri Te Whenua' },
 	{ id: '6sB8vvA_6rQ', start: 1, end: 1593, title: 'Bo and The Constrictors - Lobofest 21 ' },
 	{ id: 'XqleQ6NP9oM', start: 2502, end: 2737, title: 'KOMMI - Auraki Mai' },
