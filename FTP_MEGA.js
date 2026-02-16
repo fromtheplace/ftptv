@@ -98,7 +98,7 @@ var videoPlaylist = [
 	{ id: '7HxENNQql38', start: 8640, end: 10225, title: 'BLUES PROFESSOR - Space Concert' },
 	{ id: '7HxENNQql38', start: 16644, end: 19755, title: 'LOOM - Space Concert' },
 	{ id: '6TmjOxhDWps', start: 1, end: 1101, title: 'ZExII - ŌHHH22 ' },
-	{ id: 'Onet82xMWdg', start: 4334, end: 4772, title: 'Reid+Wolken+Kelly - (Live at The Anteroom)Juju' },
+	
 	{ id: 'y3-LF-9y1Vw', start: 1, end: 238, title: 'Kylie Price - Not Lost' },
 	{ id: 'XqleQ6NP9oM', start: 2138, end: 2340, title: 'KOMMI - Takataka' },
 	{ id: 'wjsr8ZmaRVA', start: 1520, end: 1943, title: 'FILTH WIZARD - Teeth' },
@@ -118,7 +118,7 @@ var videoPlaylist = [
 	{ id: 'x4ihJ5iqSHY', start: 575, end: 684, title: 'RYECHI -  ALL OF THE MONEY PT.1' },
 	{ id: 'Y1HIFa3CNNI', start: 1542, end: 1806, title: 'House of 2000 - Like a Man (Remix)' },
 	{ id: 'oNo0vlT0UUQ', start: 0, end: 204, title: 'Alcatraz - intro' },
-	{ id: 'Onet82xMWdg', start: 1027, end: 1505, title: 'Reid+Wolken+Kelly - (Live at The Anteroom) Requiet' },
+	
 	{ id: 'TXrevEe3yAA', start: 340, end: 387, title: 'Cuck - ' },
 	{ id: 'wVFA4gm0K8Q', start: 1, end: 1536, title: 'Ollie & The Crooks - Lobofest 21 ' },
 	{ id: 'wIlck2PsFVM', start: 1, end: 1970, title: 'Local Elementz & Roarz - ŌHHH22 ' },
