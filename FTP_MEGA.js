@@ -39,7 +39,7 @@ var videoPlaylist = [
 	{ id: 'wIlck2PsFVM', start: 1, end: 1970, title: 'Local Elementz & Roarz - ŌHHH22 ' },
 	{ id: 'TXrevEe3yAA', start: 1807, end: 1897, title: 'House of 2000 - Tech Scratch (outro)' },
 	,
-	{ id: 'gxxH73S1sac', start: 0, end: 148, title: 'MadNeTeX — Saturns Rings' },
+	
 	{ id: 'y3-LF-9y1Vw', start: 805, end: 1288, title: 'Kylie Price - Searching for a Saint' },
 	{ id: 'SLsg2lt_wC8', start: 1010, end: 2340, title: 'House of 2000 - Evo' },
 	{ id: 'x4ihJ5iqSHY', start: 955, end: 1144, title: 'RYECHI -  DIGGIN (GOLDMINES)' },
@@ -55,8 +55,6 @@ var videoPlaylist = [
 	{ id: 'XqleQ6NP9oM', start: 1046, end: 1263, title: 'KOMMI - Rere' },
 	{ id: 'y3-LF-9y1Vw', start: 1, end: 238, title: 'Kylie Price - Not Lost' },
 	{ id: 'XNdZ249SJlU', start: 1560, end: 1877, title: 'FOTA - Wake up' },
-	
-	{ id: 'XNdZ249SJlU', start: 1877, end: 2288, title: 'FOTA - She got it' },
 	{ id: '7HxENNQql38', start: 1945, end: 2684, title: 'BETSY & THE RECKLESS - Space Concert' },
 	{ id: '7HxENNQql38', start: 2960, end: 4851, title: 'Brendan Christie - Space Concert' },
 	{ id: 'x4ihJ5iqSHY', start: 312, end: 448, title: 'RYECHI -  MULL IT UP' },
