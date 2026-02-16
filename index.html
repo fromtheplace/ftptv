@@ -351,35 +351,27 @@ font-family: 'Unbounded', sans-serif; font-weight: 900; font-size: 13px; letter-
 
 <script src="FTP_MEGA.js"></script>
 <script>
-// videoPlaylist is declared in FTP_MEGA.js
-const PLAYLIST = videoPlaylist;
-</script>
-
-<script>
 // ══════════════════════════════════════════════════════
 //  FTP CHANNEL — LIVE BROADCAST MODE
-//
-//  Every visitor lands mid-stream. Position is derived
-//  from wall-clock time + a daily seed so the "schedule"
-//  shifts each UTC day. Nobody starts at track 1.
-//  No skip, no scrub, no shuffle — you're watching TV.
 // ══════════════════════════════════════════════════════
 
-// ── Total playlist duration (auto-calculated from data) ──
+const PLAYLIST = videoPlaylist;
 const TOTAL_SECONDS = PLAYLIST.reduce((s, t) => s + Math.max(0, t.end - t.start), 0);
 
-// ── Live position: where in the rotation are we right now? ──
+// ── Live position ─────────────────────────────────────────────────────────────
+// Wall clock is the ONLY source of truth. Every browser at the same moment
+// gets the same track and offset. Refresh = same result.
 function getLivePosition() {
-  const nowSec = Math.floor(Date.now() / 1000);
-
-  // Integer-safe seed — avoids float precision drift across JS engines
-  // (Safari/Chrome/Firefox round differently above ~2^31)
+  const nowSec    = Math.floor(Date.now() / 1000);
   const dayNumber = Math.floor(nowSec / 86400);
+
+  // BigInt prevents float precision drift across Safari/Chrome/Firefox
+  // which caused cross-browser desync after hours of playback
   const dailySeed = Number(
     (BigInt(dayNumber % TOTAL_SECONDS) * 3571n) % BigInt(TOTAL_SECONDS)
   );
 
-  const posInCycle = (nowSec % TOTAL_SECONDS + dailySeed) % TOTAL_SECONDS;
+  const posInCycle = ((nowSec % TOTAL_SECONDS) + dailySeed) % TOTAL_SECONDS;
 
   let elapsed = 0;
   for (let i = 0; i < PLAYLIST.length; i++) {
@@ -392,19 +384,17 @@ function getLivePosition() {
   return { index: 0, seekOffset: 0, posInCycle: 0 };
 }
 
-let player         = null;
-let videoIndex     = 0;
-let _muted         = true;
-let isPlaying      = false;
-let progressTimer  = null;
-let clipDuration   = 0;
-let playerReady    = false;
-let liveSeekOffset = 0;
-let hasTunedIn     = false;
-let pendingSeek    = null;
-let clipEndAt      = 0;  // manual endSeconds enforcement for mobile
+let player        = null;
+let videoIndex    = 0;
+let _muted        = true;
+let progressTimer = null;
+let clipDuration  = 0;
+let playerReady   = false;
+let hasTunedIn    = false;
+let pendingSeek   = null; // seek target — applied in BUFFERING + PLAYING
+let clipEndAt     = 0;   // manual clip-end for mobile (endSeconds unreliable)
+let advancing     = false; // guard against double-advance
 
-// ── Formatters ──
 function fmt(s) {
   s = Math.max(0, Math.floor(s));
   return `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;
@@ -434,7 +424,7 @@ function extractEvent(title) {
   return null;
 }
 
-// ── Tune-in gate ──
+// ── Tune-in gate ──────────────────────────────────────────────────────────────
 function tuneIn() {
   if (hasTunedIn) return;
   hasTunedIn = true;
@@ -447,10 +437,9 @@ function tuneIn() {
     document.getElementById('vol-icon').textContent = '🔊';
     document.getElementById('vol-slider').value     = 80;
   }
-  // if player isn't ready yet, onPlayerReady will unmute when it fires
 }
 
-// ── Boot YouTube IFrame API ──
+// ── Boot YouTube IFrame API ───────────────────────────────────────────────────
 (function loadYTAPI() {
   const tag = document.createElement('script');
   tag.src = 'https://www.youtube.com/iframe_api';
@@ -461,15 +450,8 @@ window.onYouTubeIframeAPIReady = function() {
   player = new YT.Player('yt-player', {
     width: '100%', height: '100%',
     playerVars: {
-      autoplay:       1,
-      mute:           1,      // browser autoplay requires starting muted
-      controls:       0,
-      disablekb:      1,
-      modestbranding: 1,
-      rel:            0,
-      iv_load_policy: 3,
-      fs:             0,
-      playsinline:    1,
+      autoplay: 0, mute: 1, controls: 0, disablekb: 1,
+      modestbranding: 1, rel: 0, iv_load_policy: 3, fs: 0, playsinline: 1,
     },
     events: {
       onReady:       onPlayerReady,
@@ -481,69 +463,68 @@ window.onYouTubeIframeAPIReady = function() {
 
 function onPlayerReady() {
   playerReady = true;
-
-  // Drop into the broadcast mid-stream
-  const { index, seekOffset } = getLivePosition();
-  videoIndex     = index;
-  liveSeekOffset = seekOffset;
-  loadTrack(videoIndex);
-
-  // Only unmute if user has already clicked tune-in
-  if (hasTunedIn) {
-    player.unMute();
-    player.setVolume(80);
-    _muted = false;
-    document.getElementById('mute-btn').textContent = '🔊';
-    document.getElementById('vol-icon').textContent = '🔊';
-    document.getElementById('vol-slider').value     = 80;
-  }
+  syncToLive();
+  if (hasTunedIn) unmute();
 }
 
-// ── Load track — always via loadVideoById (prevents ads) ──
-function loadTrack(index) {
+// ── Core sync: derive position from clock and load ────────────────────────────
+function syncToLive() {
+  const { index, seekOffset } = getLivePosition();
+  videoIndex = index;
+  loadTrack(index, seekOffset);
+}
+
+// ── Load track ────────────────────────────────────────────────────────────────
+// Uses cueVideoById (not loadVideoById) so we can seekTo() in the CUED state
+// before playback begins. loadVideoById on iOS ignores startSeconds for large
+// values (e.g. track starting at second 20040 in a long video) — the only
+// reliable pattern is: cue → CUED fires → seekTo → playVideo.
+function loadTrack(index, seekOffset) {
   if (!playerReady || !player || !PLAYLIST.length) return;
   const track = PLAYLIST[index];
   if (!track) return;
 
+  advancing    = false;
   clearInterval(progressTimer);
+
   clipDuration = track.end - track.start;
+  const startAt = track.start + (seekOffset || 0);
+  clipEndAt     = track.end;
+  pendingSeek   = startAt; // applied in CUED → seekTo → playVideo sequence
 
-  const startAt  = track.start + liveSeekOffset;
-  liveSeekOffset = 0;
-
-  // Store seek target — iOS ignores startSeconds in loadVideoById.
-  // We seek explicitly in BUFFERING state (more reliable than PLAYING on mobile).
-  pendingSeek = startAt;
-  // Store clip end so we can enforce it manually — endSeconds is unreliable on mobile.
-  clipEndAt = track.end;
-
-  player.loadVideoById({
+  // cueVideoById registers the video + suggested start but doesn't begin
+  // playback. CUED state (5) fires when ready. We then seekTo + playVideo.
+  player.cueVideoById({
     videoId:      track.id,
-    startSeconds: startAt,
+    startSeconds: startAt,  // hint — not reliable on mobile, hence pendingSeek
     endSeconds:   track.end,
   });
 
-  updateOverlay(track, index, startAt);
+  updateOverlay(track);
 }
 
 function onStateChange(e) {
   const S = YT.PlayerState;
 
-  if (e.data === S.BUFFERING) {
-    // Seek here — BUFFERING is the earliest reliable hook on iOS Safari.
-    // By PLAYING the player has already committed to a start position.
+  if (e.data === S.CUED) {
+    // Video is cued and ready. Seek to exact position then start playing.
+    // This is the most reliable sequence on iOS — seek before any playback
+    // has started so the decoder hasn't committed to a start position yet.
     if (pendingSeek !== null) {
-      const target = pendingSeek;
-      pendingSeek  = null;
-      const current = player.getCurrentTime();
-      if (Math.abs(current - target) > 2) {
-        player.seekTo(target, true);
-      }
+      player.seekTo(pendingSeek, true);
+      pendingSeek = null;
+    }
+    player.playVideo();
+
+  } else if (e.data === S.BUFFERING) {
+    // Second-chance seek — in case CUED fired before seekTo registered
+    if (pendingSeek !== null) {
+      player.seekTo(pendingSeek, true);
+      pendingSeek = null;
     }
 
   } else if (e.data === S.PLAYING) {
-    isPlaying = true;
-    // Second-chance seek in case BUFFERING fired before the video was ready
+    // Third-chance seek — last resort if both CUED and BUFFERING missed
     if (pendingSeek !== null) {
       const target = pendingSeek;
       pendingSeek  = null;
@@ -554,12 +535,11 @@ function onStateChange(e) {
     startProgress();
 
   } else if (e.data === S.PAUSED) {
-    isPlaying = false;
     clearInterval(progressTimer);
 
   } else if (e.data === S.ENDED) {
     clearInterval(progressTimer);
-    advance(true);
+    advance();
   }
 }
 
@@ -568,7 +548,14 @@ function onError(e) {
   advance();
 }
 
-function advance(fromEnd = false) {
+// ── Advance: always re-derive from wall clock ─────────────────────────────────
+// Never use a local counter. Wall clock = single source of truth.
+// Refresh and natural track-end produce identical results.
+function advance() {
+  if (advancing) return;
+  advancing = true;
+  clearInterval(progressTimer);
+
   const s = document.getElementById('static');
   s.classList.add('flash');
   setTimeout(() => s.classList.remove('flash'), 80);
@@ -577,14 +564,11 @@ function advance(fromEnd = false) {
   b.classList.add('show');
   setTimeout(() => {
     b.classList.remove('show');
-    const { index, seekOffset } = getLivePosition();
-    videoIndex     = index;
-    liveSeekOffset = fromEnd ? 0 : seekOffset;
-    loadTrack(videoIndex);
+    syncToLive(); // re-derive from clock — correct position after bump delay too
   }, 650);
 }
 
-// ── Progress ticker ──
+// ── Progress ticker ───────────────────────────────────────────────────────────
 function startProgress() {
   clearInterval(progressTimer);
   progressTimer = setInterval(() => {
@@ -599,16 +583,15 @@ function startProgress() {
     document.getElementById('clip-bar').style.width  = pctS;
     document.getElementById('prog-cur').textContent  = fmt(elapsed);
 
-    // Manual endSeconds enforcement — mobile ignores the endSeconds param
-    if (clipEndAt > 0 && cur >= clipEndAt - 0.5) {
-      clearInterval(progressTimer);
-      advance(true);
+    // Manual clip-end enforcement — endSeconds is ignored on mobile
+    if (clipEndAt > 0 && cur >= clipEndAt - 0.5 && !advancing) {
+      advance();
     }
   }, 500);
 }
 
-// ── Overlay ──
-function updateOverlay(track, index, startAt) {
+// ── Overlay ───────────────────────────────────────────────────────────────────
+function updateOverlay(track) {
   const p     = parseTitle(track.title);
   const event = extractEvent(track.title);
 
@@ -622,9 +605,20 @@ function updateOverlay(track, index, startAt) {
   const badge = document.getElementById('lt-badge');
   if (event) { badge.textContent = event; badge.style.display = 'inline-block'; }
   else        { badge.style.display = 'none'; }
+
+  updateMediaSession(track);
 }
 
-// ── Volume / Mute ──
+// ── Volume / Mute ─────────────────────────────────────────────────────────────
+function unmute() {
+  player.unMute();
+  player.setVolume(80);
+  _muted = false;
+  document.getElementById('mute-btn').textContent = '🔊';
+  document.getElementById('vol-icon').textContent = '🔊';
+  document.getElementById('vol-slider').value     = 80;
+}
+
 function toggleMute() {
   if (!player) return;
   _muted = !_muted;
@@ -634,12 +628,7 @@ function toggleMute() {
     document.getElementById('vol-icon').textContent = '🔇';
     document.getElementById('vol-slider').value     = 0;
   } else {
-    player.unMute();
-    const v = Math.max(parseInt(document.getElementById('vol-slider').value) || 80, 10);
-    player.setVolume(v);
-    document.getElementById('vol-slider').value     = v;
-    document.getElementById('mute-btn').textContent = '🔊';
-    document.getElementById('vol-icon').textContent = '🔊';
+    unmute();
     if (!hasTunedIn) { hasTunedIn = true; document.getElementById('tune-in').classList.add('hide'); }
   }
 }
@@ -663,18 +652,15 @@ function toggleFullscreen() {
   else document.exitFullscreen();
 }
 
-// ── PWA: Register Service Worker ─────────────────────────────────────────────
+// ── PWA: Service Worker ───────────────────────────────────────────────────────
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('sw.js').catch(() => {});
 }
 
-// ── MediaSession: lock screen controls + background audio ────────────────────
-// Registering any MediaSession action tells the OS to keep our audio context
-// alive when the screen locks — same mechanism Spotify/Apple Music use.
+// ── MediaSession ──────────────────────────────────────────────────────────────
 function updateMediaSession(track) {
   if (!('mediaSession' in navigator)) return;
   const p = parseTitle(track.title);
-
   navigator.mediaSession.metadata = new MediaMetadata({
     title:  p.artist,
     artist: p.context || 'FROM THE PLACE',
@@ -684,20 +670,9 @@ function updateMediaSession(track) {
       { src: 'icons/icon-512.png', sizes: '512x512', type: 'image/png' },
     ]
   });
-
-  // These actions do nothing functionally (live TV — no seeking)
-  // but MUST be registered for iOS to keep audio alive on lock screen
   navigator.mediaSession.setActionHandler('play',  () => player?.playVideo());
   navigator.mediaSession.setActionHandler('pause', () => player?.pauseVideo());
-  // No previoustrack / nexttrack — live broadcast, no skipping
 }
-
-// Call updateMediaSession whenever a track loads
-const _origUpdateOverlay = updateOverlay;
-updateOverlay = function(track, index, startAt) {
-  _origUpdateOverlay(track, index, startAt);
-  updateMediaSession(track);
-};
 </script>
 </body>
 </html>
