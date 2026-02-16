@@ -1,10 +1,8 @@
 var videoPlaylist = [
-
 	{ id: 'y4jkCeM_hDo', start: 1, end: 287, title: 'Rezzy Crooks - Swimming Pools (Cover) (Music for People) ' },
 	{ id: 'XqleQ6NP9oM', start: 1699, end: 1883, title: 'KOMMI - Oka' },
 	{ id: 'd1XTFC4_x2U', start: 1, end: 1531, title: 'Roarz & Infectiouss - ŌHHH24 [FULL SET] #rap' },
 	{ id: 'XqleQ6NP9oM', start: 1883, end: 2138, title: 'KOMMI - Taipō' },
-	
 	{ id: 'XqleQ6NP9oM', start: 1883, end: 2138, title: 'KOMMI - Taipō' },
 	{ id: 'uhFob1qiNio', start: 1305, end: 238, title: 'EXPJ - Expansive' },
 	{ id: 'XvE0GewwNlI', start: 1, end: 855, title: 'KĀHU - MFP 2 ' },
@@ -38,9 +36,7 @@ var videoPlaylist = [
 	{ id: 'O6e3xm1P3gc', start: 0, end: 394, title: 'Cash Guitar - Hocus Pocus' },
 	{ id: 'wIlck2PsFVM', start: 1, end: 1970, title: 'Local Elementz & Roarz - ŌHHH22 ' },
 	{ id: 'TXrevEe3yAA', start: 1807, end: 1897, title: 'House of 2000 - Tech Scratch (outro)' },
-	,
-	
-	{ id: 'y3-LF-9y1Vw', start: 805, end: 1288, title: 'Kylie Price - Searching for a Saint' },
+		{ id: 'y3-LF-9y1Vw', start: 805, end: 1288, title: 'Kylie Price - Searching for a Saint' },
 	{ id: 'SLsg2lt_wC8', start: 1010, end: 2340, title: 'House of 2000 - Evo' },
 	{ id: 'x4ihJ5iqSHY', start: 955, end: 1144, title: 'RYECHI -  DIGGIN (GOLDMINES)' },
 	{ id: 'hx_zXAC0cSU', start: 1, end: 171, title: 'Common Ground Crew - ŌHHH22 ' },
@@ -90,8 +86,7 @@ var videoPlaylist = [
 	{ id: 'nmoTBVEOmPQ', start: 1, end: 942, title: 'Christian Tucker - ŌHHH22 ' },
 	{ id: 'gxxH73S1sac', start: 942, end: 1081, title: 'MadNeTeX —Swords over war' },
 	{ id: 'x4ihJ5iqSHY', start: 312, end: 448, title: 'RYECHI -  MULL IT UP' },
-	
-	{ id: 't3BjeWZtcdg', start: 1, end: 248, title: 'The Rhododendrons - The Apple ' },
+		{ id: 't3BjeWZtcdg', start: 1, end: 248, title: 'The Rhododendrons - The Apple ' },
 	{ id: 'uhFob1qiNio', start: 1993, end: 1993, title: 'EXPJ - Step' },
 	{ id: 'x4ihJ5iqSHY', start: 448, end: 575, title: 'RYECHI -  TERRESTRIAL' },
 	{ id: 'Onet82xMWdg', start: 4334, end: 4772, title: 'Reid+Wolken+Kelly - (Live at The Anteroom)Juju' },
@@ -104,8 +99,7 @@ var videoPlaylist = [
 	{ id: 'Q8BTkUb93uc', start: 1, end: 1225, title: 'MIC SURE Ft. Assorted Hamish — ŌHHH24 [FULL SET] #rap' },
 	{ id: 'yMalm0erWto', start: 2540, end: 2870, title: 'BROKEN HEARTBREAKERS - A Night for Nick Knox' },
 	{ id: 'O6e3xm1P3gc', start: 394, end: 700, title: 'Cash Guitar - Christmas Time ' },
-	
-	{ id: 'XqleQ6NP9oM', start: 906, end: 1046, title: 'KOMMI - Huri Te Whenua' },
+		{ id: 'XqleQ6NP9oM', start: 906, end: 1046, title: 'KOMMI - Huri Te Whenua' },
 	{ id: '6sB8vvA_6rQ', start: 1, end: 1593, title: 'Bo and The Constrictors - Lobofest 21 ' },
 	{ id: 'XqleQ6NP9oM', start: 2502, end: 2737, title: 'KOMMI - Auraki Mai' },
 	{ id: 'yMalm0erWto', start: 1585, end: 1810, title: 'ABBY FLEUR - A Night for Nick Knox' },
