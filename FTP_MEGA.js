@@ -25,7 +25,7 @@ var videoPlaylist = [
 	{ id: '7HxENNQql38', start: 12900, end: 16065, title: '0DC - Space Concert' },
 	{ id: 'XvE0GewwNlI', start: 1, end: 855, title: 'KĀHU - MFP 2 ' },
 	{ id: '7HxENNQql38', start: 10610, end: 12530, title: 'HASZARI - Space Concert' },
-	{ id: 'y3-LF-9y1Vw', start: 805, end: 5979, title: 'Kylie Price - Searching for a Saint' },
+	{ id: 'y3-LF-9y1Vw', start: 805, end: 1288, title: 'Kylie Price - Searching for a Saint' },
 	{ id: 'uhFob1qiNio', start: 1595, end: 1595, title: 'EXPJ - Introductions' },
 	{ id: 'SLsg2lt_wC8', start: 200, end: 545, title: 'Hystera - Hystera - sONG 2' },
 	{ id: '7XTt8SivXyA', start: 1, end: 1982, title: 'Benchmark Entertainment — ŌHHH24 [FULL SET] #rap' },
