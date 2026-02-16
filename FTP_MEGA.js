@@ -4,8 +4,7 @@ var videoPlaylist = [
 	{ id: 'XqleQ6NP9oM', start: 1699, end: 1883, title: 'KOMMI - Oka' },
 	{ id: 'd1XTFC4_x2U', start: 1, end: 1531, title: 'Roarz & Infectiouss - ŌHHH24 [FULL SET] #rap' },
 	{ id: 'XqleQ6NP9oM', start: 1883, end: 2138, title: 'KOMMI - Taipō' },
-	{ id: 'edl2kqLY5jQ', start: 1, end: 1321, title: 'Dylbag - Lobofest 21 ' },
-	{ id: 'Q_LUqcNwt1E', start: 1, end: 1457, title: 'Optimist Mind - ŌHHH22 ' },
+	
 	{ id: 'XqleQ6NP9oM', start: 1883, end: 2138, title: 'KOMMI - Taipō' },
 	{ id: 'uhFob1qiNio', start: 1305, end: 238, title: 'EXPJ - Expansive' },
 	{ id: 'XvE0GewwNlI', start: 1, end: 855, title: 'KĀHU - MFP 2 ' },
