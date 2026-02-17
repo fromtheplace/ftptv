@@ -129,7 +129,6 @@ var videoPlaylist = [
 	{ id: 'GoP7KiDgCkg', start: 1, end: 1971, title: 'Dudstown Soundsystem - ŌHHH22 ' },
 	{ id: 'XNdZ249SJlU', start: 3092, end: 3451, title: 'FOTA - Believe' },
 	{ id: 'Yvk_m9dpG2g', start: 1, end: 713, title: 'RASA #2 - ŌHHH22 ' },
-	{ id: 'XqleQ6NP9oM', start: 1263, end: 4334, title: 'KOMMI - Tāiro' },
 	{ id: 'f8fhAe6YrTw', start: 1, end: 1696, title: 'Ferdishenko - WMFLive ' },
 	{ id: 'oNo0vlT0UUQ', start: 410, end: 584, title: 'Alcatraz - Chivalrys dead' },
 	{ id: 'gxxH73S1sac', start: 831, end: 942, title: 'MadNeTeX —Frontline' },
