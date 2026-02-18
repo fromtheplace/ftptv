@@ -155,10 +155,10 @@ body{transform: scale(0.9);
 /* STATIC OVERLAY — flashes on track change */
 #static {
   position: fixed; inset: 0; z-index: 19; pointer-events: none; opacity: 0;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.4'/%3E%3C/svg%3E");
+  background-image: url("images/random.gif");
   background-size: 200px;
   mix-blend-mode: screen;
-  transition: opacity 0.05s;
+  transition: opacity 5s;
 }
 #static.flash { opacity: 0.18; }
 
@@ -168,7 +168,7 @@ body{transform: scale(0.9);
   background: #0a0a0a;
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0;
   cursor: pointer;
-  transition: opacity 0.6s ease;
+  transition: opacity 5s ease;
 }
 #tune-in.hide { opacity: 0; pointer-events: none; }
 #tune-in .logotitle {
@@ -197,9 +197,9 @@ body{transform: scale(0.9);
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0;
   opacity: 0; pointer-events: none;
   /* snap to black instantly on show, slow fade out */
-  transition: opacity 1.4s ease;
+  transition: opacity 10.4s ease;
 }
-#bump.show { opacity: 1; transition: opacity 0.05s ease; }
+#bump.show { opacity: 1; transition: opacity 5s ease; }
 
 .logotitle {
   border: 2px solid rgba(255,255,255,0.5);
@@ -585,7 +585,7 @@ function advance() {
   setTimeout(() => {
     b.classList.remove('show');
     syncToLive(); // re-derive from clock — correct position after bump delay too
-  }, 650);
+  }, 5000);
 }
 
 // ── Progress ticker ───────────────────────────────────────────────────────────
