@@ -238,7 +238,25 @@ padding: 3.4rem 3.4rem 4rem;
  background-image: url("images/ftptv.png");  background-repeat: no-repeat;    
   background-position: center;     
   background-size: contain;   
-font-family: 'Unbounded', sans-serif; font-weight: 900; font-size: 13px; letter-spacing: 0.22em; color: var(--white); user-select: none; }
+font-family: 'Unbounded', sans-serif; font-weight: 900; font-size: 13px; letter-spacing: 0.22em; color: var(--white); user-select: none; 
+          display: block;
+  filter: brightness(0.92) contrast(1.05);
+
+  /* Add animation */
+  animation: logoPulse 4s ease-in-out infinite;
+}
+
+@keyframes logoPulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.06); /* subtle zoom */
+  }
+  100% {
+    transform: scale(1);
+  }
+}
 
 .nav-logo em { font-style: normal; color: var(--channel-green); }
 .nav-right { display: flex; align-items: center; gap: 14px; }
