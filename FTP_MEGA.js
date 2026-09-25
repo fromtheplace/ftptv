@@ -144,12 +144,6 @@ var videoPlaylist = [
 	{ id: 'x4ihJ5iqSHY', start: 20, end: 204, title: 'RYECHI -  TO PASTURES', artist: '', genre: '' },
 	{ id: 'wjsr8ZmaRVA', start: 1520, end: 1943, title: 'FILTH WIZARD - Teeth', artist: '', genre: '' },
 	{ id: 'oNo0vlT0UUQ', start: 96, end: 286, title: 'Alcatraz - to good freestyle', artist: '', genre: '' },
-{ id: 'bEzAZik3WLs', start: 97, end: 1987, title: 'Catherine KS', artist: 'Lobofest', genre: 'RAP' },
-{ id: 'bEzAZik3WLs', start: 2477, end: 4752, title: 'Person Will', artist: 'Lobofest', genre: 'RAP' },
-{ id: 'bEzAZik3WLs', start: 5268, end: 7144, title: 'Baser & Allen', artist: 'Lobofest', genre: 'folk' },
-{ id: 'bEzAZik3WLs', start: 7791, end: 8657, title: 'Alan Ned Gray', artist: 'Lobofest', genre: 'folk' },
-{ id: 'bEzAZik3WLs', start: 9243, end: 10641, title: 'Sun Veins', artist: 'Lobofest', genre: 'ROCK' },
-{ id: 'bEzAZik3WLs', start: 11196, end: 12523, title: 'Katharticus', artist: 'Lobofest', genre: 'ROCK' },
-{ id: 'bEzAZik3WLs', start: 12808, end: 14997, title: 'Black', artist: 'Sale House - Lobofest', genre: 'ROCK' },
+{ id: 'bEzAZik3WLs', start: 12808, end: 14997, title: 'Black-Sale House', artist: ' Lobofest', genre: 'ROCK' },
 // Total: 145 tracks, 29:56:29
 ];
